@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.MP", "Kugar.WechatSDK.MP\Kugar.WechatSDK.MP.csproj", "{75FB7EC9-2BC9-4184-982A-04BB89088870}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.MiniProgram", "Kugar.WechatSDK.MiniProgram\Kugar.WechatSDK.MiniProgram.csproj", "{195C2677-2B69-4A4C-9068-4C6B9C304F73}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.OpenPlatform", "Kugar.WechatSDK.OpenPlatform\Kugar.WechatSDK.OpenPlatform.csproj", "{C668DA3E-8742-47AE-89D7-A41A9FDD5BE3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.Common", "Kugar.WechatSDK.Common\Kugar.WechatSDK.Common.csproj", "{57732312-9946-4D3D-AB7A-EEE8FF576C3B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.Mvc", "Kugar.WechatSDK.Mvc\Kugar.WechatSDK.Mvc.csproj", "{EBF6F373-74A5-4E33-806E-42250615B591}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kugar.WechatSDK.MP.Web", "Kugar.WechatSDK.MP.Web\Kugar.WechatSDK.MP.Web.csproj", "{819C1E44-4CC1-4212-A95D-A77649A17ADC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75FB7EC9-2BC9-4184-982A-04BB89088870}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75FB7EC9-2BC9-4184-982A-04BB89088870}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75FB7EC9-2BC9-4184-982A-04BB89088870}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75FB7EC9-2BC9-4184-982A-04BB89088870}.Release|Any CPU.Build.0 = Release|Any CPU
+		{195C2677-2B69-4A4C-9068-4C6B9C304F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{195C2677-2B69-4A4C-9068-4C6B9C304F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{195C2677-2B69-4A4C-9068-4C6B9C304F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{195C2677-2B69-4A4C-9068-4C6B9C304F73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C668DA3E-8742-47AE-89D7-A41A9FDD5BE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C668DA3E-8742-47AE-89D7-A41A9FDD5BE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C668DA3E-8742-47AE-89D7-A41A9FDD5BE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C668DA3E-8742-47AE-89D7-A41A9FDD5BE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57732312-9946-4D3D-AB7A-EEE8FF576C3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57732312-9946-4D3D-AB7A-EEE8FF576C3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57732312-9946-4D3D-AB7A-EEE8FF576C3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57732312-9946-4D3D-AB7A-EEE8FF576C3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBF6F373-74A5-4E33-806E-42250615B591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBF6F373-74A5-4E33-806E-42250615B591}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBF6F373-74A5-4E33-806E-42250615B591}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBF6F373-74A5-4E33-806E-42250615B591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{819C1E44-4CC1-4212-A95D-A77649A17ADC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{819C1E44-4CC1-4212-A95D-A77649A17ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{819C1E44-4CC1-4212-A95D-A77649A17ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{819C1E44-4CC1-4212-A95D-A77649A17ADC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FCE79178-C21B-417B-82E7-AD4087FC0BA3}
+	EndGlobalSection
+EndGlobal

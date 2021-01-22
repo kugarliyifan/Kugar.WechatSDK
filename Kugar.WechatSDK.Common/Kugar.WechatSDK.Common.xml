@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Kugar.WechatSDK.Common</name>
+    </assembly>
+    <members>
+        <member name="T:Kugar.WechatSDK.Common.BackgroudTasks.AccessTokenRefreshTask">
+            <summary>
+            定时自动检查AccessToken是否有效,无效时,自动刷新
+            </summary>
+        </member>
+        <member name="F:Kugar.WechatSDK.Common.Helpers.DateTimeHelper.BaseTime">
+            <summary>Unix起始时间</summary>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.DateTimeHelper.GetDateTimeFromXml(System.Int64)">
+            <summary>转换微信DateTime时间到C#时间</summary>
+            <param name="dateTimeFromXml">微信DateTime</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.DateTimeHelper.GetDateTimeFromXml(System.String)">
+            <summary>转换微信DateTime时间到C#时间</summary>
+            <param name="dateTimeFromXml">微信DateTime</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.DateTimeHelper.GetUnixDateTime(System.DateTime)">
+            <summary>获取Unix时间戳</summary>
+            <param name="dateTime"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.GetSha1(System.String)">
+            <summary>采用SHA-1算法加密字符串（小写）</summary>
+            <param name="encypStr">需要加密的字符串</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.GetHmacSha256(System.String,System.String)">
+            <summary>HMAC SHA256 加密</summary>
+            <param name="message">加密消息原文。当为小程序SessionKey签名提供服务时，其中message为本次POST请求的数据包（通常为JSON）。特别地，对于GET请求，message等于长度为0的字符串。</param>
+            <param name="secret">秘钥（如小程序的SessionKey）</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.GetMD5(System.String,System.Text.Encoding)">
+            <summary>获取大写的MD5签名结果</summary>
+            <param name="encypStr">需要加密的字符串</param>
+            <param name="encoding">编码</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.GetMD5(System.String,System.String)">
+            <summary>获取大写的MD5签名结果</summary>
+            <param name="encypStr">需要加密的字符串</param>
+            <param name="charset">编码</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.GetLowerMD5(System.String,System.Text.Encoding)">
+            <summary>获取小写的MD5签名结果</summary>
+            <param name="encypStr">需要加密的字符串</param>
+            <param name="encoding">编码</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.AESEncrypt(System.Byte[],System.Byte[],System.String)">
+            <summary>AES加密（默认为CBC模式）</summary>
+            <param name="inputdata">输入的数据</param>
+            <param name="iv">向量</param>
+            <param name="strKey">加密密钥</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.AESDecrypt(System.Byte[],System.Byte[],System.String)">
+            <summary>AES解密（默认为CBC模式）</summary>
+            <param name="inputdata">输入的数据</param>
+            <param name="iv">向量</param>
+            <param name="strKey">key</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.AESEncrypt(System.String,System.String)">
+            <summary>AES 加密（无向量，CEB模式，秘钥长度=128）</summary>
+            <param name="str">明文（待加密）</param>
+            <param name="key">密文</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kugar.WechatSDK.Common.Helpers.EncryptHelper.AESDecrypt(System.String,System.String)">
+            <summary>AES 解密（无向量，CEB模式，秘钥长度=128）</summary>
+            <param name="data">被加密的明文（注意：为Base64编码）</param>
+            <param name="key">密钥</param>
+            <returns>明文</returns>
+        </member>
+        <member name="P:Kugar.WechatSDK.Common.WechatConfigurationBase.ManagerAccessToken">
+            <summary>
+            该配置是否需要管理AccessToken
+            </summary>
+        </member>
+    </members>
+</doc>
