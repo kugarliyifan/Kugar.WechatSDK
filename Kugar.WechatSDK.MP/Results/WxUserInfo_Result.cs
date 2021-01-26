@@ -24,4 +24,27 @@ namespace Kugar.WechatSDK.MP.Results
 
         public string UnionID { set; get; }
     }
+
+    public class SubscribeWxUserInfo_Result:WxUserInfo_Result
+    {
+        /// <summary>
+        /// 是否已订阅
+        /// </summary>
+        public bool IsSubscribe { set; get; }
+
+        /// <summary>
+        /// 订阅时间
+        /// </summary>
+        public long? SubscribeDt { set; get; }
+
+        /// <summary>
+        /// 订阅时的场景类型
+        /// </summary>
+        public string SubscribeScene { set; get; }
+
+        /// <summary>
+        /// 如果是扫码关注的,为扫码的场景值
+        /// </summary>
+        public string QrScene { set; get; }
+    }
 }

@@ -31,10 +31,10 @@ namespace Kugar.WechatSDK.Common.Gateway
             {
                 _configs.Add(config);
 
-                if (config.ManagerAccessToken)
-                {
-                    _accessTokenContainer.Register(config.AppID, config.AppSerect);
-                }
+                //if (config.ManagerAccessToken)
+                //{
+                //    _accessTokenContainer.Register(config.AppID, config.AppSerect);
+                //}
 
                 return true;
             }
@@ -49,7 +49,7 @@ namespace Kugar.WechatSDK.Common.Gateway
             return _configs.FirstOrDefault(x => x.AppID == appID);
         }
 
-        public WechatConfigurationBase Get<T>() where T : WechatConfigurationBase
+        public T Get<T>() where T : WechatConfigurationBase
         {
             var tmp = _configs.Where(x => x.GetType() == typeof(T)).ToList();
 
@@ -57,7 +57,7 @@ namespace Kugar.WechatSDK.Common.Gateway
 
             if (count == 1)
             {
-                return tmp[0];
+                return tmp[0] as T;
             }
             else if (count <= 0)
             {
@@ -65,7 +65,27 @@ namespace Kugar.WechatSDK.Common.Gateway
             }
             else
             {
-                return tmp[0];
+                return tmp[0] as T;
+            }
+        }
+
+        public T Get<T>(string appID) where T : WechatConfigurationBase
+        {
+            var tmp = _configs.Where(x => x.GetType() == typeof(T) && x.AppID==appID).ToList();
+
+            var count = tmp.Count;
+
+            if (count == 1)
+            {
+                return tmp[0] as T;
+            }
+            else if (count <= 0)
+            {
+                throw new ArgumentOutOfRangeException("指定类型配置不存在");
+            }
+            else
+            {
+                return tmp[0] as T;
             }
         }
 

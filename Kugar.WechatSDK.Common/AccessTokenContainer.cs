@@ -20,13 +20,13 @@ namespace Kugar.WechatSDK.Common
             new Dictionary<string, (string appID, string appSerect)>();
 
         private IMemoryCache _accessTokenCache = null;
-        private ILogger _logger = null;
+        private ILoggerFactory _loggerFactory = null;
         private HttpRequestHelper _request = null;
 
-        internal AccessTokenContainer(IMemoryCache cache,ILogger logger,HttpRequestHelper request)
+        public AccessTokenContainer(IMemoryCache cache,HttpRequestHelper request,ILoggerFactory loggerFactory=null)
         {
             _accessTokenCache = cache;
-            _logger = logger;
+            _loggerFactory = loggerFactory;
             _request = request;
         }
 
@@ -51,19 +51,21 @@ namespace Kugar.WechatSDK.Common
                         var token = data.GetString("access_token");
                         var expire = data.GetInt("expires_in");
 
+                        _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Trace,$"获取accesstoken返回值:{data.ToStringEx(Formatting.None)}");
+
                         x.AbsoluteExpiration=DateTimeOffset.Now.AddSeconds(expire-2);
 
                         return token;
                     }
                     else
                     {
-                        _logger?.Log(LogLevel.Error,$"调用微信获取token失败,错误代码:{errorCode.ToStringEx()}");
+                        _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"调用微信获取token失败,错误代码:{errorCode.ToStringEx()}");
                         throw new Exception($"调用微信获取token失败,错误代码:{errorCode.ToStringEx()}");
                     }
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException(nameof(appID));
+                    throw new ArgumentOutOfRangeException(nameof(appID),"为托管对应的AccessToken");
                 }
             });
         }
@@ -107,6 +109,7 @@ namespace Kugar.WechatSDK.Common
                 }
                 else
                 {
+                    _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"检查{appID}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
                     throw new Exception($"检查{appID}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
                 }
             }

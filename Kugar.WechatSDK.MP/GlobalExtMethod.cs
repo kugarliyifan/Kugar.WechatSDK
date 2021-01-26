@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Kugar.WechatSDK.Common;
 using Kugar.WechatSDK.Common.Gateway;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Kugar.WechatSDK.MP
 {
@@ -11,18 +13,22 @@ namespace Kugar.WechatSDK.MP
     {
         public static IServiceCollection AddWechatMP(this IServiceCollection services,params MPConfiguration[] configurations)
         {
+            Debugger.Break();
+            
+            services.AddSingleton(typeof(OptionsManager<>));
             services.AddSingleton<IOAuthService, OAuthService>();
             services.AddSingleton<IJsTicketContainer, JsTicketContainer>();
-            services.AddSingleton<MenuService>();
-            services.AddSingleton<UIService>();
+            //services.AddSingleton<MenuService>();
+            services.AddSingleton<IUIService,UIService>();
 
             services.AddSingleton<IWechatMPApi, WechatMPApi>(x =>
             {
                 var gateWay = (IWechatGateway) x.GetService(typeof(IWechatGateway));
                 var accessTokenContainer = (IAccessTokenContainer) x.GetService(typeof(IAccessTokenContainer));
-                var jsTicketContainer = (JsTicketContainer) x.GetService(typeof(JsTicketContainer));
+                var jsTicketContainer = (IJsTicketContainer) x.GetService(typeof(IJsTicketContainer));
 
-
+                Debugger.Break();
+                
                 foreach (var item in configurations)
                 {
                     gateWay.Add(item);
@@ -30,13 +36,13 @@ namespace Kugar.WechatSDK.MP
                     if (item.ManagerAccessToken)
                     {
                         accessTokenContainer.Register(item.AppID, item.AppSerect);    
-                        jsTicketContainer.Remove(item.AppID);
+                        jsTicketContainer.Register(item.AppID);
                     }
                 }
 
-                return new WechatMPApi((MenuService) x.GetService(typeof(MenuService)),
-                    (IOAuthService) x.GetService(typeof(OAuthService)),
-                    (UIService) x.GetService(typeof(UIService))
+                return new WechatMPApi(null,/*(MenuService) x.GetService(typeof(MenuService)),*/
+                    (IOAuthService) x.GetService(typeof(IOAuthService)),
+                    (IUIService) x.GetService(typeof(IUIService))
                 );
             });
             

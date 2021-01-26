@@ -63,7 +63,7 @@ namespace Kugar.WechatSDK.MP
     {
         private IWechatGateway _gateway=null;
 
-        public OAuthService(CommonApi api,IWechatGateway gateway) : base(api)
+        public OAuthService(ICommonApi api,IWechatGateway gateway) : base(api)
         {
             _gateway = gateway;
         }
@@ -199,6 +199,44 @@ namespace Kugar.WechatSDK.MP
             else
             {
                 return result.Cast<WxUserInfo_Result>(null, null);
+            }
+        }
+
+        /// <summary>
+        /// 获取订阅用户的信息,必须是已经订阅的用户,才能获取到用户信息
+        /// </summary>
+        /// <param name="appID"></param>
+        /// <param name="openID"></param>
+        /// <returns></returns>
+        public async Task<ResultReturn<SubscribeWxUserInfo_Result>> GetSubscribeUserInfo(string appID, string openID)
+        {
+            var result =await CommonApi.Get(appID,
+                $"/cgi-bin/user/info?access_token=ACCESS_TOKEN&openid={openID}&lang=zh_CN");
+
+            if (result.IsSuccess)
+            {
+                var json = result.ReturnData;
+                var ret = new SubscribeWxUserInfo_Result()
+                {
+                    OpenID = json.GetString("openid"),
+                    NickName = json.GetString("nickname"),
+                    Sex = json.GetString("sex").ToInt(),
+                    Province = json.GetString("province"),
+                    City = json.GetString("city"),
+                    Country = json.GetString("country"),
+                    HeadImageUrl = json.GetString("headimgurl"),
+                    Privilege = json.GetJArray("privilege").Select(x=>x.ToStringEx()).ToArrayEx(),
+                    UnionID = json.GetString("unionid"),
+                    IsSubscribe = json.GetInt("subscribe")==1,
+                    SubscribeScene = json.GetString("subscribe_scene"),
+                    QrScene = json.GetString("qr_scene")
+                };
+
+                return new SuccessResultReturn<SubscribeWxUserInfo_Result>(ret);
+            }
+            else
+            {
+                return result.Cast<SubscribeWxUserInfo_Result>(null, null);
             }
         }
 

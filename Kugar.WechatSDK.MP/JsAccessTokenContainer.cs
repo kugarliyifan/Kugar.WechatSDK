@@ -29,13 +29,13 @@ namespace Kugar.WechatSDK.MP
         private HashSet<string> _config =new HashSet<string>();
 
         private IMemoryCache _accessTokenCache = null;
-        private ILogger _logger = null;
-        private CommonApi _api = null;
+        private ILoggerFactory _loggerFactory = null;
+        private ICommonApi _api = null;
 
-        internal JsTicketContainer(IMemoryCache cache,ILogger logger,CommonApi api)
+        public JsTicketContainer(IMemoryCache cache,ICommonApi api,ILoggerFactory loggerFactory)
         {
             _accessTokenCache = cache;
-            _logger = logger;
+            _loggerFactory = loggerFactory;
             _api = api;
         }
 
@@ -68,7 +68,7 @@ namespace Kugar.WechatSDK.MP
                     }
                     else
                     {
-                        _logger?.Log(LogLevel.Error,$"调用微信获取token失败,错误代码:{data.ReturnCode.ToStringEx()}");
+                        _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"调用微信获取token失败,错误代码:{data.ReturnCode.ToStringEx()}");
                         throw new Exception($"调用微信获取token失败,错误代码:{data.ReturnCode.ToStringEx()}");
                     }
                 }

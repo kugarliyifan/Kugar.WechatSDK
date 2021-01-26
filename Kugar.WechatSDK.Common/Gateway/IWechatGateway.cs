@@ -6,7 +6,10 @@ namespace Kugar.WechatSDK.Common.Gateway
     {
         bool Add(WechatConfigurationBase config);
         WechatConfigurationBase Get(string appID);
-        WechatConfigurationBase Get<T>() where T : WechatConfigurationBase;
+        T Get<T>() where T : WechatConfigurationBase;
+
+        T Get<T>(string appID) where T : WechatConfigurationBase;
+
         IReadOnlyCollection<T> GetList<T>() where T : WechatConfigurationBase;
         IReadOnlyList<WechatConfigurationBase> GetList();
         bool Exists(string appID);

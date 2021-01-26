@@ -19,7 +19,7 @@ namespace Kugar.WechatSDK.Common
             services.AddHttpClient("MPApi")
                 .SetHandlerLifetime(TimeSpan.FromSeconds(10))
                 .AddPolicyHandler(GetRetryPolicy());
-            services.AddOptions<WechatRequestOption>().Configure(x=>new WechatRequestOption(){BaseApiHost = wechatApiHost});
+            services.AddOptions<WechatRequestOption>( ).Configure(x=>x.BaseApiHost = wechatApiHost);
             services.AddSingleton<HttpRequestHelper>();
             services.AddSingleton<IAccessTokenContainer, AccessTokenContainer>();
             services.AddSingleton<IWechatGateway,WechatGateway>();

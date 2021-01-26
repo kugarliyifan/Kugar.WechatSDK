@@ -7,11 +7,11 @@ namespace Kugar.WechatSDK.MP
 {
     public abstract class MPBaseService
     {
-        protected MPBaseService(CommonApi api)
+        protected MPBaseService(ICommonApi api)
         {
             CommonApi = api;
         }
 
-        protected CommonApi CommonApi { get; }
+        protected ICommonApi CommonApi { get; }
     }
 }

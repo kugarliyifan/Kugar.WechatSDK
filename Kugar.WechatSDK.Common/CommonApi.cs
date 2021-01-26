@@ -28,7 +28,7 @@ namespace Kugar.WechatSDK.Common
         private readonly IAccessTokenContainer _accessTokenContainer = null;
         private readonly HttpRequestHelper _request = null;
 
-        internal CommonApi(IAccessTokenContainer accessTokenContainer, HttpRequestHelper request)
+        public CommonApi(IAccessTokenContainer accessTokenContainer, HttpRequestHelper request)
         {
             _accessTokenContainer = accessTokenContainer;
             _request = request;
@@ -179,9 +179,16 @@ namespace Kugar.WechatSDK.Common
 
         private async Task<string> replaceUrlAccessToken(string appID, string url)
         {
-            var newUrl = url.Replace("ACCESS_TOKEN", await _accessTokenContainer.GetAccessToken(appID));
+            if (url.Contains("ACCESS_TOKEN"))
+            {
+                var newUrl = url.Replace("ACCESS_TOKEN", await _accessTokenContainer.GetAccessToken(appID));
 
-            return newUrl;
+                return newUrl;
+            }
+            else
+            {
+                return url;
+            }
         }
     }
     

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Kugar.WechatSDK.MP
@@ -8,7 +9,7 @@ namespace Kugar.WechatSDK.MP
     {
         MenuService Menu { get; }
         IOAuthService OAuth { get; }
-        UIService JsUI { get; }
+        IUIService JsUI { get; }
     }
 
     public class WechatMPApi : IWechatMPApi
@@ -16,9 +17,10 @@ namespace Kugar.WechatSDK.MP
         public WechatMPApi(
             MenuService menu,
             IOAuthService oauth,
-            UIService ui
+            IUIService ui
             )
         {
+            Debugger.Break();
             Menu = menu;
             OAuth = oauth;
             JsUI = ui;
@@ -28,6 +30,6 @@ namespace Kugar.WechatSDK.MP
 
         public IOAuthService OAuth { get; }
 
-        public UIService JsUI { get; }
+        public IUIService JsUI { get; }
     }
 }

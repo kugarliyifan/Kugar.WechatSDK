@@ -10,13 +10,33 @@ using Kugar.WechatSDK.MP.Results;
 
 namespace Kugar.WechatSDK.MP
 {
-    public class UIService:MPBaseService
+    public interface IUIService
+    {
+        /// <summary>
+        /// 获取UI注入所使用的参数
+        /// </summary>
+        /// <param name="appID"></param>
+        /// <param name="url">当前页链接</param>
+        /// <returns></returns>
+        Task<ResultReturn<JsUIArgument>> CreateJsUIArgument(string appID,string url);
+
+        /// <summary>
+        /// 生成Js配置调用配置的js脚本wx.config({注入参数}) 的脚本
+        /// </summary>
+        /// <param name="appID"></param>
+        /// <param name="url">当前页面url,需带域名</param>
+        /// <param name="functions">可使用的接口,参考:https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html#4 的附录2</param>
+        /// <returns></returns>
+        Task<string> CreateJsUIConfigScript(string appID,string url,string[] functions,bool isDebug=false);
+    }
+
+    public class UIService:MPBaseService, IUIService
     {
         private IJsTicketContainer _jsTicketContainer = null;
 
         private string _wxConfigScriptTemplate =
             "wx.config({{\r\n  debug: {0}, \r\n  appId: '{1}', \r\n  timestamp: {2}, \r\n  nonceStr: '{3}',\r\n  signature: '{4}', \r\n  jsApiList: [{5}] \r\n}});";
-        public UIService(CommonApi api,IJsTicketContainer jsTicket) : base(api)
+        public UIService(ICommonApi api,IJsTicketContainer jsTicket) : base(api)
         {
             _jsTicketContainer = jsTicket;
         }
