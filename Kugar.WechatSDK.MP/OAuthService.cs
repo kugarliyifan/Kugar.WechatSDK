@@ -54,6 +54,14 @@ namespace Kugar.WechatSDK.MP
         /// <param name="accessToken">用户的accessToken</param>
         /// <returns></returns>
         Task<bool> IsAccessTokenValidate(string appID, string openID, string accessToken);
+
+        /// <summary>
+        /// 获取订阅用户的信息,必须是已经订阅的用户,才能获取到用户信息
+        /// </summary>
+        /// <param name="appID"></param>
+        /// <param name="openID"></param>
+        /// <returns></returns>
+        Task<ResultReturn<SubscribeWxUserInfo_Result>> GetSubscribeUserInfo(string appID, string openID);
     }
 
     /// <summary>

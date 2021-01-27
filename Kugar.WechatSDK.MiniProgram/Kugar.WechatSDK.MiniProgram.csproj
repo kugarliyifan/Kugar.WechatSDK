@@ -4,8 +4,10 @@
 		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;</TargetFrameworks>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<OutputPath>..\bin\</OutputPath>
+
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
