@@ -7,7 +7,9 @@ namespace Kugar.WechatSDK.Common
     {
         Task<string> GetAccessToken(string appID);
 
-        bool Register(string appID, string appSerect);
+        bool Register(string appId, string appSerect);
+
+        bool Exists(string appId);
 
         void Remove(string appID);
 

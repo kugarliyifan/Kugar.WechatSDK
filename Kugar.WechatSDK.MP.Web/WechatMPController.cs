@@ -77,12 +77,12 @@ namespace Kugar.WechatSDK.MP.Web
 
                 LoggerManager.Default.Debug($"userInfo:{JsonConvert.SerializeObject(wxUserInfo)}");
             }
-
+            
             var option = options.Get(authScheme);
 
-            if (option.AfterOAuth != null)
+            if (option.LoginService != null)
             {
-                await option.AfterOAuth(this.HttpContext,
+                await option.LoginService?.OnOAuthCompleted(this.HttpContext,
                     appID,
                     ret1.ReturnData.OpenId,
                     ret1.ReturnData.RefreshToken,
@@ -96,9 +96,8 @@ namespace Kugar.WechatSDK.MP.Web
             
             try
             {
-                var loginService = (IWechatJWTLoginService) HttpContext.RequestServices.GetService(option.LoginService);
-
-                ret = await loginService.Login(this.HttpContext, appID, ret1.ReturnData.OpenId, ret1.ReturnData.Type, mp);
+                
+                ret = await option.LoginService.Login(this.HttpContext, appID, ret1.ReturnData.OpenId, ret1.ReturnData.Type, mp);
             }
             catch (Exception e)
             {

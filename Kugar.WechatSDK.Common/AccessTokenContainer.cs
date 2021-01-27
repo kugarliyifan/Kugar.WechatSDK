@@ -22,6 +22,7 @@ namespace Kugar.WechatSDK.Common
         private IMemoryCache _accessTokenCache = null;
         private ILoggerFactory _loggerFactory = null;
         private HttpRequestHelper _request = null;
+        
 
         public AccessTokenContainer(IMemoryCache cache,HttpRequestHelper request,ILoggerFactory loggerFactory=null)
         {
@@ -30,15 +31,15 @@ namespace Kugar.WechatSDK.Common
             _request = request;
         }
 
-        public async Task<string> GetAccessToken(string appID)
+        public async Task<string> GetAccessToken(string appId)
         {
-            return await _accessTokenCache.GetOrCreateAsync(appID,async x =>
+            return await _accessTokenCache.GetOrCreateAsync(appId,async x =>
             {
                 Debugger.Break();
-                if (_config.TryGetValue(appID,out var tmp))
+                if (_config.TryGetValue(appId,out var tmp))
                 {
                     var data=await _request.SendApiJson(
-                        $"/cgi-bin/token?grant_type=client_credential&appid={appID}&secret={tmp.appSerect}",
+                        $"/cgi-bin/token?grant_type=client_credential&appid={appId}&secret={tmp.appSerect}",
                         HttpMethod.Get);
 
                     //var data=await WebHelper.Create($"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appID}&secret={tmp.appSerect}")
@@ -65,7 +66,7 @@ namespace Kugar.WechatSDK.Common
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException(nameof(appID),"为托管对应的AccessToken");
+                    throw new ArgumentOutOfRangeException(nameof(appId),"为托管对应的AccessToken");
                 }
             });
         }
@@ -85,17 +86,17 @@ namespace Kugar.WechatSDK.Common
             });
         }
 
-        public async Task<string> RefreshAccessToken(string appID)
+        public async Task<string> RefreshAccessToken(string appId)
         {
-            _config.Remove(appID);
-            return await GetAccessToken(appID);
+            _config.Remove(appId);
+            return await GetAccessToken(appId);
         }
 
-        public async Task<bool> CheckAccessToken(string appID)
+        public async Task<bool> CheckAccessToken(string appId)
         {
-            if (_accessTokenCache.TryGetValue(appID,out var token))
+            if (_accessTokenCache.TryGetValue(appId,out var token))
             {
-                var result=await _request.SendApiJson($"https://api.weixin.qq.com/cgi-bin/get_api_domain_ip?access_token={token.ToStringEx()}",HttpMethod.Get);
+                var result=await _request.SendApiJson($"/cgi-bin/get_api_domain_ip?access_token={token.ToStringEx()}",HttpMethod.Get);
 
                 var errorCode = result.GetInt("errcode",0);
 
@@ -109,8 +110,8 @@ namespace Kugar.WechatSDK.Common
                 }
                 else
                 {
-                    _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"检查{appID}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
-                    throw new Exception($"检查{appID}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
+                    _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"检查{appId}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
+                    throw new Exception($"检查{appId}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
                 }
             }
             else
@@ -120,11 +121,11 @@ namespace Kugar.WechatSDK.Common
             
         }
 
-        public bool Register(string appID, string appSerect)
+        public bool Register(string appId, string appSerect)
         {
-            if (_config.TryAdd(appID, (appID, appSerect)))
+            if (_config.TryAdd(appId, (appId, appSerect)))
             {
-                _accessTokenCache.Remove(appID);
+                _accessTokenCache.Remove(appId);
                 return true;
             }
             else
@@ -133,15 +134,20 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
-        public void Remove(string appID)
+        public bool Exists(string appId)
         {
-            _config.Remove(appID);
-            _accessTokenCache.Remove(appID);
+            return _config.ContainsKey(appId);
+        }
+
+        public void Remove(string appId)
+        {
+            _config.Remove(appId);
+            _accessTokenCache.Remove(appId);
         }
         
-        internal void RemoveAccessToken(string appID)
+        internal void RemoveAccessToken(string appId)
         {
-            _accessTokenCache.Remove(appID);
+            _accessTokenCache.Remove(appId);
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Kugar.WechatSDK.MP.Web
                 options.CopyValue(opt);
             });
 
-            builder.Services.AddScoped(options.LoginService);
+            //builder.Services.AddScoped(options.LoginService);
 
             builder.AddJwtBearer(authenticationScheme, (opt) =>
             {
@@ -134,8 +134,8 @@ namespace Kugar.WechatSDK.MP.Web
                         var oauth = (context.Principal.FindFirstValue("OAuthType")).ToStringEx().ToInt();
                         var appID=(context.Principal.FindFirstValue("AppID")).ToStringEx();
 #endif
-                        var loginService =
-                            (IWechatJWTLoginService) context.HttpContext.RequestServices.GetService(options.LoginService);
+                        var loginService = tmpOpt.LoginService;
+                           // (IWechatJWTLoginService) context.HttpContext.RequestServices.GetService(options.LoginService);
 
                         var ret = await loginService.Login(context.HttpContext,appID, openID,(SnsapiType)oauth,mp);
                          
@@ -192,10 +192,13 @@ namespace Kugar.WechatSDK.MP.Web
 
                         var appID ="";
 
+                        var appIDFactory =
+                            (IWechatMPAppIdFactory) context.HttpContext.RequestServices.GetService(
+                                typeof(IWechatMPAppIdFactory));
 
-                        if (options.AppIdFactory!=null)
+                        if (appIDFactory!=null)
                         {
-                            appID = await options.AppIdFactory?.Invoke(context, mp);
+                            appID = await appIDFactory?.GetAppId(context, mp);
 
                             if (string.IsNullOrWhiteSpace(appID))
                             {
@@ -279,6 +282,33 @@ namespace Kugar.WechatSDK.MP.Web
             string authenticationScheme,
             WechatJWTOption options) => AddWchatMPJWT(builder,authenticationScheme, authenticationScheme, options);
 
+        /// <summary>
+        /// 注册一个AppID获取类,用于多AppID的情况
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection RegisterMPFactory<T>(this IServiceCollection services) where T :class, IWechatMPAppIdFactory
+        {
+            services.AddScoped<IWechatMPAppIdFactory,T>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// 注册一个微信公众号JWT用户登录服务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection RegisterMPJWTLoginService<T>(this IServiceCollection services)
+            where T : class, IWechatJWTAuthenticateService
+        {
+            services.AddScoped<IWechatJWTAuthenticateService,T>();
+
+            return services;
+        }
+
         #if NETCOREAPP2_1
 
         private static ConcurrentDictionary<MethodInfo, WechatMPAuthorizeAttribute> _cacheMPAuthorizeAttr =
@@ -318,9 +348,10 @@ namespace Kugar.WechatSDK.MP.Web
         }
 
         #endif
-
-
+        
     }
+
+
 
     public class WechatJWTOption
     {
@@ -338,19 +369,7 @@ namespace Kugar.WechatSDK.MP.Web
         /// <summary>
         /// 用于登录验证的服务接口,必须是 IWechatJWTLoginService
         /// </summary>
-        public Type LoginService
-        {
-            get => _loginService;
-            set
-            {
-                if (!value.IsImplementlInterface(typeof(IWechatJWTLoginService)))
-                {
-                    throw new ArgumentTypeNotMatchException(nameof(value), "IWechatJWTLoginService");
-                }
-
-                _loginService = value;
-            }
-        }
+        public IWechatJWTAuthenticateService LoginService { set; get; }
 
         /// <summary>
         /// 授权名称
@@ -376,16 +395,13 @@ namespace Kugar.WechatSDK.MP.Web
         /// </summary>
         public Func<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerChallengeContext,IWechatMPApi, Task> OnChallenge { set; get; }
 
-        public AfterMPOAuthCallback AfterOAuth { set; get; }
-
         /// <summary>
         /// 如果该参数为空,则取配置内的第一个公众号配置的AppID
         /// </summary>
-        public MPAppIDFactory AppIdFactory { set; get; }
+        public IWechatMPAppIdFactory AppIdFactory { set; get; }
 
         private string _tokenEncKey= _defaultToken;
         private byte[] _actualEncKey= _defaultActualEncKey;
-        private Type _loginService;
 
 
         public string Issuer { set; get; } = "wechatlogin";
@@ -420,24 +436,24 @@ namespace Kugar.WechatSDK.MP.Web
         }
     }
 
-    /// <summary>
-    /// 授权返回后自动回调该函数,用于自动添加用户时可用
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="appID"></param>
-    /// <param name="refresh_token">用于刷新用户accesstoken的refreshToken</param>
-    /// <param name="accessToken">用户的accesstoken</param>
-    /// <param name="userInfo">用户信息,只有在授权方式为userinfo的时候,才可用,否则为null</param>
-    /// <param name="mpApi">注入的IWechatMPApi接口</param>
-    /// <returns></returns>
-    public delegate Task AfterMPOAuthCallback(HttpContext context, string appID,string openID,string refresh_token,string accessToken,
-        WxUserInfo_Result userInfo, IWechatMPApi mpApi);
+    ///// <summary>
+    ///// 授权返回后自动回调该函数,用于自动添加用户时可用
+    ///// </summary>
+    ///// <param name="context"></param>
+    ///// <param name="appID"></param>
+    ///// <param name="refresh_token">用于刷新用户accesstoken的refreshToken</param>
+    ///// <param name="accessToken">用户的accesstoken</param>
+    ///// <param name="userInfo">用户信息,只有在授权方式为userinfo的时候,才可用,否则为null</param>
+    ///// <param name="mpApi">注入的IWechatMPApi接口</param>
+    ///// <returns></returns>
+    //public delegate Task AfterMPOAuthCallback(HttpContext context, string appID,string openID,string refresh_token,string accessToken,
+    //    WxUserInfo_Result userInfo, IWechatMPApi mpApi);
 
-    /// <summary>
-    /// 用于根据context,返回对应的appid
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="mpApi"></param>
-    /// <returns></returns>
-    public delegate Task<string> MPAppIDFactory(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerChallengeContext context, IWechatMPApi mpApi);
+    ///// <summary>
+    ///// 用于根据context,返回对应的appid
+    ///// </summary>
+    ///// <param name="context"></param>
+    ///// <param name="mpApi"></param>
+    ///// <returns></returns>
+    //public delegate Task<string> MPAppIDFactory(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerChallengeContext context, IWechatMPApi mpApi);
 }

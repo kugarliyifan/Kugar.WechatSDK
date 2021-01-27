@@ -20,12 +20,26 @@ namespace Kugar.WechatSDK.Common
                 .SetHandlerLifetime(TimeSpan.FromSeconds(10))
                 .AddPolicyHandler(GetRetryPolicy());
             services.AddOptions<WechatRequestOption>( ).Configure(x=>x.BaseApiHost = wechatApiHost);
-            services.AddSingleton<HttpRequestHelper>();
+            services.AddScoped<HttpRequestHelper>();
             services.AddSingleton<IAccessTokenContainer, AccessTokenContainer>();
             services.AddSingleton<IWechatGateway,WechatGateway>();
-            services.AddSingleton<ICommonApi,CommonApi>();
+            services.AddScoped<ICommonApi,CommonApi>();
 
             services.AddHostedService<AccessTokenRefreshTask>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// 注册一个能从外部获取AccessToken的接口类,如果由本类库自动管理,可无需注册该类,Scoped方式
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection RegisterAccessTokenFactory<T>(this IServiceCollection services)
+            where T : class, IAccessTokenFactory
+        {
+            services.AddScoped<IAccessTokenFactory, T>();
 
             return services;
         }

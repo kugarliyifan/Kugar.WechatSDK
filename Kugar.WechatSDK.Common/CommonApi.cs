@@ -27,10 +27,12 @@ namespace Kugar.WechatSDK.Common
     {
         private readonly IAccessTokenContainer _accessTokenContainer = null;
         private readonly HttpRequestHelper _request = null;
+        private readonly IAccessTokenFactory _accessTokenFactory = null;
 
-        public CommonApi(IAccessTokenContainer accessTokenContainer, HttpRequestHelper request)
+        public CommonApi(IAccessTokenContainer accessTokenContainer,IAccessTokenFactory accessTokenFactory, HttpRequestHelper request)
         {
             _accessTokenContainer = accessTokenContainer;
+            _accessTokenFactory = accessTokenFactory;
             _request = request;
         }
 
@@ -170,8 +172,6 @@ namespace Kugar.WechatSDK.Common
         {
             var newUrl = await replaceUrlAccessToken(appID, url);
             
-            var reTryCount = 3;
-            
             var s =await _request.PostRaw(newUrl,args);
 
             return s;
@@ -181,7 +181,18 @@ namespace Kugar.WechatSDK.Common
         {
             if (url.Contains("ACCESS_TOKEN"))
             {
-                var newUrl = url.Replace("ACCESS_TOKEN", await _accessTokenContainer.GetAccessToken(appID));
+                var accessToken = "";
+
+                if (_accessTokenContainer.Exists(appID))
+                {
+                    accessToken =  await _accessTokenContainer.GetAccessToken(appID);
+                }
+                else
+                {
+                    accessToken = await _accessTokenFactory.GetAccessToken(appID);
+                }
+
+                var newUrl = url.Replace("ACCESS_TOKEN",accessToken);
 
                 return newUrl;
             }
