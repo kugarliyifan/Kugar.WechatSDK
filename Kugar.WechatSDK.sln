@@ -11,9 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.OpenPlatfor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.Common", "Kugar.WechatSDK.Common\Kugar.WechatSDK.Common.csproj", "{57732312-9946-4D3D-AB7A-EEE8FF576C3B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.Mvc", "Kugar.WechatSDK.Mvc\Kugar.WechatSDK.Mvc.csproj", "{EBF6F373-74A5-4E33-806E-42250615B591}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kugar.WechatSDK.MP.Web", "Kugar.WechatSDK.MP.Web\Kugar.WechatSDK.MP.Web.csproj", "{819C1E44-4CC1-4212-A95D-A77649A17ADC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kugar.WechatSDK.MP.Web", "Kugar.WechatSDK.MP.Web\Kugar.WechatSDK.MP.Web.csproj", "{819C1E44-4CC1-4212-A95D-A77649A17ADC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0BAD069C-7D9F-4A74-A8E6-C61BD5827A0F}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +40,6 @@ Global
 		{57732312-9946-4D3D-AB7A-EEE8FF576C3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57732312-9946-4D3D-AB7A-EEE8FF576C3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57732312-9946-4D3D-AB7A-EEE8FF576C3B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EBF6F373-74A5-4E33-806E-42250615B591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EBF6F373-74A5-4E33-806E-42250615B591}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EBF6F373-74A5-4E33-806E-42250615B591}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EBF6F373-74A5-4E33-806E-42250615B591}.Release|Any CPU.Build.0 = Release|Any CPU
 		{819C1E44-4CC1-4212-A95D-A77649A17ADC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{819C1E44-4CC1-4212-A95D-A77649A17ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{819C1E44-4CC1-4212-A95D-A77649A17ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
