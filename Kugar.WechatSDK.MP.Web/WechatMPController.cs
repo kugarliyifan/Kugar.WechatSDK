@@ -39,6 +39,7 @@ namespace Kugar.WechatSDK.MP.Web
             [FromServices] IMemoryCache cache,
             [FromServices] OptionsManager<WechatJWTOption> options,
             [FromRoute] string authScheme,
+            [FromServices] IWechatJWTAuthenticateService loginService,
             [FromQuery] string code = "", [FromQuery] string state = "")
         {
             Debugger.Break();
@@ -80,24 +81,25 @@ namespace Kugar.WechatSDK.MP.Web
             
             var option = options.Get(authScheme);
 
-            if (option.LoginService != null)
+            if (loginService==null)
             {
-                await option.LoginService?.OnOAuthCompleted(this.HttpContext,
-                    appID,
-                    ret1.ReturnData.OpenId,
-                    ret1.ReturnData.RefreshToken,
-                    ret1.ReturnData.AccessToken,
-                    wxUserInfo,
-                    mp
-                );
+                throw new ArgumentNullException("loginService为空,请使用services.RegisterMPJWTLoginService注册登录服务");
             }
 
+            await loginService?.OnOAuthCompleted(this.HttpContext,
+                appID,
+                ret1.ReturnData.OpenId,
+                ret1.ReturnData.RefreshToken,
+                ret1.ReturnData.AccessToken,
+                wxUserInfo,
+                mp
+            );
+        
             ResultReturn<string> ret;
             
             try
             {
-                
-                ret = await option.LoginService.Login(this.HttpContext, appID, ret1.ReturnData.OpenId, ret1.ReturnData.Type, mp);
+                ret = await loginService.Login(this.HttpContext, appID, ret1.ReturnData.OpenId, ret1.ReturnData.Type, mp);
             }
             catch (Exception e)
             {

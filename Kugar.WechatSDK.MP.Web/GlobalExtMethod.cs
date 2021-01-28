@@ -48,10 +48,10 @@ namespace Kugar.WechatSDK.MP.Web
             string displayName,
             WechatJWTOption options)
         {
-            if (options.LoginService == null)
-            {
-                throw new ArgumentNullException("options.LoginService不能为空");
-            }
+            //if (options.LoginService == null)
+            //{
+            //    throw new ArgumentNullException("options.LoginService不能为空");
+            //}
             
             options.AuthenticationScheme = authenticationScheme;
             
@@ -119,8 +119,11 @@ namespace Kugar.WechatSDK.MP.Web
 
                     var tmpOpt = t.Get(authName);
 
+                    var loginService =
+                        (IWechatJWTAuthenticateService) context.HttpContext.RequestServices.GetService(
+                            typeof(IWechatJWTAuthenticateService));
 
-                    if (tmpOpt.LoginService != null)
+                    if (loginService != null)
                     {
                         var mp = (IWechatMPApi) context.HttpContext.RequestServices.GetService(typeof(IWechatMPApi));
                         
@@ -134,7 +137,7 @@ namespace Kugar.WechatSDK.MP.Web
                         var oauth = (context.Principal.FindFirstValue("OAuthType")).ToStringEx().ToInt();
                         var appID=(context.Principal.FindFirstValue("AppID")).ToStringEx();
 #endif
-                        var loginService = tmpOpt.LoginService;
+                        //var loginService = tmpOpt.LoginService;
                            // (IWechatJWTLoginService) context.HttpContext.RequestServices.GetService(options.LoginService);
 
                         var ret = await loginService.Login(context.HttpContext,appID, openID,(SnsapiType)oauth,mp);
@@ -366,10 +369,10 @@ namespace Kugar.WechatSDK.MP.Web
         /// </summary>
         public CookieBuilder Cookie { set; get; } = new CookieBuilder();
 
-        /// <summary>
-        /// 用于登录验证的服务接口,必须是 IWechatJWTLoginService
-        /// </summary>
-        public IWechatJWTAuthenticateService LoginService { set; get; }
+        ///// <summary>
+        ///// 用于登录验证的服务接口,必须是 IWechatJWTLoginService
+        ///// </summary>
+        //public IWechatJWTAuthenticateService LoginService { set; get; }
 
         /// <summary>
         /// 授权名称
@@ -394,11 +397,7 @@ namespace Kugar.WechatSDK.MP.Web
         /// 登录失败时,触发该回调,如需要触发跳转,使用context.Response.Redirect,后使用context.HandleResponse()中止后续处理
         /// </summary>
         public Func<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerChallengeContext,IWechatMPApi, Task> OnChallenge { set; get; }
-
-        /// <summary>
-        /// 如果该参数为空,则取配置内的第一个公众号配置的AppID
-        /// </summary>
-        public IWechatMPAppIdFactory AppIdFactory { set; get; }
+        
 
         private string _tokenEncKey= _defaultToken;
         private byte[] _actualEncKey= _defaultActualEncKey;
