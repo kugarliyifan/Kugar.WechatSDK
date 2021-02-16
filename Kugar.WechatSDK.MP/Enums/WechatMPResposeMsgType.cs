@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Kugar.WechatSDK.MP.Entities
+﻿namespace Kugar.WechatSDK.MP.Enums
 {
     /// <summary>
     /// 应答消息类型

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Kugar.Core.BaseStruct;
@@ -21,6 +22,10 @@ namespace Kugar.WechatSDK.Common
         Task<ResultReturn<JObject>> Post(string appID, string url,JObject args);
 
         Task<Stream> PostRaw(string appID, string url, JObject args);
+
+        Task<ResultReturn<JObject>> PostByForm(string appID, string url,params (string key, object data)[] dic);
+
+        Task<ResultReturn<JObject>> PostFileByForm(string appID, string url, string key, string filename, Stream data);
     }
 
     public class CommonApi : ICommonApi
@@ -175,6 +180,96 @@ namespace Kugar.WechatSDK.Common
             var s =await _request.PostRaw(newUrl,args);
 
             return s;
+        }
+
+        public async Task<ResultReturn<JObject>> PostByForm(string appID, string url,params (string key, object data)[] dic)
+        {
+            var newUrl = await replaceUrlAccessToken(appID, url);
+
+
+            var form = new MultipartFormDataContent();
+
+            foreach (var item in dic)
+            {
+                if (item.data is Stream stream)
+                {
+                    form.Add(new StreamContent(stream),item.key);    
+                }
+                else if(item.data is byte[] b)
+                {
+                    form.Add(new ByteArrayContent(b),item.key);    
+                }
+                else
+                {
+                    form.Add(new StringContent(item.data.ToStringEx(),Encoding.UTF8),item.key);
+                }
+            }
+
+            var reTryCount = 3;
+            
+            var s =await _request.Get(newUrl);
+
+            var errorCode = s.GetInt("errcode");
+ 
+            while (errorCode==4001 || reTryCount<=0)
+            {
+                s =await _request.PostByForm(newUrl,form);
+
+                if (errorCode==0)
+                {
+                    break; 
+                }
+                errorCode = s.GetInt("errcode");
+                reTryCount--;
+            }
+
+            if (errorCode==0)
+            {
+                return new SuccessResultReturn<JObject>(s);
+            }
+            else
+            {
+
+                return new FailResultReturn<JObject>(s.GetString("errmsg"), errorCode);
+            }
+        }
+
+        public async Task<ResultReturn<JObject>> PostFileByForm(string appID, string url,string key, string filename, Stream data)
+        {
+            var newUrl = await replaceUrlAccessToken(appID, url);
+
+
+            var form = new MultipartFormDataContent();
+
+            form.Add(new StreamContent(data),key,filename);
+            
+            var reTryCount = 3;
+            
+            var s =await _request.Get(newUrl);
+
+            var errorCode = s.GetInt("errcode");
+ 
+            while (errorCode==4001 || reTryCount<=0)
+            {
+                s =await _request.PostByForm(newUrl,form);
+
+                if (errorCode==0)
+                {
+                    break; 
+                }
+                errorCode = s.GetInt("errcode");
+                reTryCount--;
+            }
+
+            if (errorCode==0)
+            {
+                return new SuccessResultReturn<JObject>(s);
+            }
+            else
+            {
+
+                return new FailResultReturn<JObject>(s.GetString("errmsg"), errorCode);
+            }
         }
 
         private async Task<string> replaceUrlAccessToken(string appID, string url)

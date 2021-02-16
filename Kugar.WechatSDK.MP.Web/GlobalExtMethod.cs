@@ -286,7 +286,7 @@ namespace Kugar.WechatSDK.MP.Web
             WechatJWTOption options) => AddWchatMPJWT(builder,authenticationScheme, authenticationScheme, options);
 
         /// <summary>
-        /// 注册一个AppID获取类,用于多AppID的情况
+        /// 注册一个AppID获取类,用于多AppID的情况,并且AppID为运行时才可以获得的情况,比如从数据库中读取
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="services"></param>
@@ -299,7 +299,7 @@ namespace Kugar.WechatSDK.MP.Web
         }
 
         /// <summary>
-        /// 注册一个微信公众号JWT用户登录服务
+        /// 注册一个微信公众号JWT用户登录验证的服务
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="services"></param>
@@ -308,6 +308,8 @@ namespace Kugar.WechatSDK.MP.Web
             where T : class, IWechatJWTAuthenticateService
         {
             services.AddScoped<IWechatJWTAuthenticateService,T>();
+
+            services.AddScoped<IHttpContextAccessor>();
 
             return services;
         }

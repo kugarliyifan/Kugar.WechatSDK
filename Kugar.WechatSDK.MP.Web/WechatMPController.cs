@@ -11,6 +11,7 @@ using System.Xml;
 using Kugar.Core.BaseStruct;
 using Kugar.Core.ExtMethod;
 using Kugar.Core.Log;
+using Kugar.WechatSDK.Common;
 using Kugar.WechatSDK.Common.Gateway;
 using Kugar.WechatSDK.MP.Enums;
 using Kugar.WechatSDK.MP.Results;
@@ -32,6 +33,7 @@ namespace Kugar.WechatSDK.MP.Web
 
     public class WechatMPController : ControllerBase
     {
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("Core/MP/Callback/{authScheme}/{appID}")]
         [AllowAnonymous]
         public async Task<IActionResult> Callback([FromRoute] string appID,
@@ -39,7 +41,7 @@ namespace Kugar.WechatSDK.MP.Web
             [FromServices] IMemoryCache cache,
             [FromServices] OptionsManager<WechatJWTOption> options,
             [FromRoute] string authScheme,
-            [FromServices] IWechatJWTAuthenticateService loginService,
+            [FromServices] IWechatJWTAuthenticateService loginService=null,
             [FromQuery] string code = "", [FromQuery] string state = "")
         {
             Debugger.Break();
@@ -151,15 +153,17 @@ namespace Kugar.WechatSDK.MP.Web
 
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("Core/MPCallback/service/{appID}")]
         [HttpGet]
         public async Task<IActionResult> Service([FromServices] IWechatGateway gateway,
-            [FromServices] ILoggerFactory logger,
             [FromQuery] string signature,
             [FromQuery] string timestamp,
             [FromQuery] string nonce,
             [FromQuery] string echostr,
-            [FromRoute] string appID = "")
+            [FromRoute] string appID = "",
+            [FromServices] ILoggerFactory logger=null
+            )
         {
             if (gateway == null)
             {
@@ -186,24 +190,26 @@ namespace Kugar.WechatSDK.MP.Web
             }
             else
             {
-                return Content("failed:" + signature + "," + CheckSignature.GetSignature(timestamp, nonce, config.Token) + "。" +
-                               "如果你在浏览器中看到这句话，说明此地址可以被作为微信公众账号后台的Url，请注意保持Token一致。");
+                return Content($"failed:{signature},{CheckSignature.GetSignature(timestamp, nonce, config.Token).ToString()}。如果你在浏览器中看到这句话，说明此地址可以被作为微信公众账号后台的Url，请注意保持Token一致。");
             }
 
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("Core/MPCallback/service/{appID}")]
-        [ActionName("Service")]
         [HttpPost]
         public async Task<IActionResult> ServicePost([FromServices] IWechatGateway gateway,
-            [FromServices] ILoggerFactory logger,
             [FromQuery] string signature,
             [FromQuery] string timestamp,
             [FromQuery] string nonce,
             [FromQuery] string echostr,
-            [FromRoute] string appID = "")
+            [FromRoute] string appID = "",
+            [FromServices] ILoggerFactory logger=null,
+            [FromServices] IWechatMPApi mpApi=null,
+            [FromServices]MPMessageHandler msgHandler=null
+            )
         {
-            return Content("");
+            //return Content("");
 
             if (gateway == null)
             {
@@ -238,66 +244,20 @@ namespace Kugar.WechatSDK.MP.Web
             var inputStream = Request.Body;
             inputStream.Position = 0;
 
-            var xml = new XmlDocument();
-            xml.Load(inputStream);
+            var xml = inputStream.ReadToEnd();
 
+            var msg=mpApi.Message.DecodeMPRequestMsg(xml);
 
+            if (msg.IsSuccess)
+            {
+                if (await msgHandler.AddMessage(msg.ReturnData))
+                {
+
+                }
+            }
 
             return null;
         }
     }
 
-    /// <summary>
-    /// 签名验证类
-    /// </summary>
-    internal class CheckSignature
-    {
-        /// <summary>
-        /// 在网站没有提供Token（或传入为null）的情况下的默认Token，建议在网站中进行配置。
-        /// </summary>
-        public const string Token = "weixin";
-
-
-        /// <summary>
-        /// 检查签名是否正确
-        /// </summary>
-        /// <param name="signature"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="nonce"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public static bool Check(string signature, string timestamp, string nonce, string token = null)
-        {
-            return signature == GetSignature(timestamp, nonce, token);
-        }
-
-
-        /// <summary>
-        /// 返回正确的签名
-        /// </summary>
-        /// <param name="timestamp"></param>
-        /// <param name="nonce"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public static string GetSignature(string timestamp, string nonce, string token = null)
-        {
-            token = token ?? Token;
-            var arr = new[] { token, timestamp, nonce }.OrderBy(z => z).ToArray();
-            var arrString = string.Join("", arr);
-            //var enText = FormsAuthentication.HashPasswordForStoringInConfigFile(arrString, "SHA1");//使用System.Web.Security程序集
-            using (var sha1 = SHA1.Create())
-            {
-                var sha1Arr = sha1.ComputeHash(Encoding.UTF8.GetBytes(arrString));
-                StringBuilder enText = new StringBuilder();
-                foreach (var b in sha1Arr)
-                {
-                    enText.AppendFormat("{0:x2}", b);
-                }
-
-                return enText.ToString();
-            }
-
-
-        }
-    }
 }

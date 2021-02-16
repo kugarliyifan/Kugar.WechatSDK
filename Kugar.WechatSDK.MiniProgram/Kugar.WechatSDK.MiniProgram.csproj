@@ -7,12 +7,17 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<OutputPath>..\bin\</OutputPath>
+		<Version>1.0.0.2</Version>
 
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DocumentationFile>..\bin\Kugar.WechatSDK.MiniProgram.xml</DocumentationFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Newbe.ObjectVisitor" Version="0.4.4" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Kugar.WechatSDK.Common\Kugar.WechatSDK.Common.csproj" />

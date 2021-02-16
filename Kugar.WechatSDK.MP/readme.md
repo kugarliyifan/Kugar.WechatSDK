@@ -9,9 +9,10 @@ services.AddWechatGateway()
 		{
 			new MPConfiguration()
 			{
-				AppID = CustomConfigManager.Default["Wechat:赠券:AppID"],
-				AppSerect = CustomConfigManager.Default["Wechat:赠券:AppSerect"],
-				ManagerAccessToken = CustomConfigManager.Default["Wechat:赠券:ManageToken"].ToBool()
+				AppID = CustomConfigManager.Default["Wechat:AppID"],
+				AppSerect = CustomConfigManager.Default["Wechat:AppSerect"],
+				Token=CustomConfigManager.Default["Wechat:Token"],
+				ManagerAccessToken = CustomConfigManager.Default["Wechat:ManageToken"].ToBool()
 			}
 		});
 

@@ -7,6 +7,7 @@ using Kugar.Core.BaseStruct;
 using Kugar.Core.ExtMethod;
 using Kugar.WechatSDK.Common;
 using Kugar.WechatSDK.MiniProgram.Results;
+using Newbe.ObjectVisitor;
 using Newtonsoft.Json.Linq;
 
 namespace Kugar.WechatSDK.MiniProgram
@@ -46,32 +47,48 @@ namespace Kugar.WechatSDK.MiniProgram
         /// <returns></returns>
         Task<ResultReturn<GetTemplateListItem_Result[]>> GetTemplateList(string appID);
 
-        /// <summary>
-        /// 发送订阅消息
-        /// </summary>
-        /// <param name="toUserOpenID">接受者的openid</param>
-        /// <param name="template_id">模板id</param>
-        /// <param name="page">点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转</param>
-        /// <param name="data">模板内容</param>
-        /// <returns></returns>
-        Task<ResultReturn> Send(string appID, string toUserOpenID, 
-            string template_id,
-            string page,
-            object data
-        );
+        ///// <summary>
+        ///// 发送订阅消息
+        ///// </summary>
+        ///// <param name="toUserOpenID">接受者的openid</param>
+        ///// <param name="template_id">模板id</param>
+        ///// <param name="page">点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段为null或者空字符串则模板无跳转</param>
+        ///// <param name="data">模板内容,属性名为模板数据项名称,value为值</param>
+        ///// <returns></returns>
+        //Task<ResultReturn> Send(string appID, string toUserOpenID, 
+        //    string template_id,
+        //    string page,
+        //    object data
+        //);
 
         /// <summary>
         /// 发送订阅消息
         /// </summary>
+        /// <param name="appID">发送者AppID</param>
         /// <param name="toUserOpenID">接受者的openid</param>
         /// <param name="template_id">模板id</param>
-        /// <param name="page">点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转</param>
-        /// <param name="data">模板内容</param>
+        /// <param name="page">点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段为null或者空字符串则模板无跳转</param>
+        /// <param name="data">模板内容, 属性名为模板数据项名称,value为值</param>
         /// <returns></returns>
         Task<ResultReturn> Send(string appID, string toUserOpenID,
             string template_id,
             string page,
             JObject data
+        );
+
+        /// <summary>
+        /// 发送小程序模板消息
+        /// </summary>
+        /// <param name="appID">发送者AppID</param>
+        /// <param name="toUserOpenID">接受者的openid</param>
+        /// <param name="template_id">模板id</param>
+        /// <param name="page">点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段为null或者空字符串则模板无跳转</param>
+        /// <param name="data">模板内容, key为模板数据项名称,value为值</param>
+        /// <returns></returns>
+        Task<ResultReturn> Send(string appID, string toUserOpenID,
+            string template_id,
+            string page,
+            params (string key, string value)[] data
         );
     }
 
@@ -158,24 +175,43 @@ namespace Kugar.WechatSDK.MiniProgram
             }
         }
 
-        /// <summary>
-        /// 发送订阅消息
-        /// </summary>
-        /// <param name="toUserOpenID">接受者的openid</param>
-        /// <param name="template_id">模板id</param>
-        /// <param name="page">点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转</param>
-        /// <param name="data">模板内容</param>
-        /// <returns></returns>
-        public async Task<ResultReturn> Send(string appID, string toUserOpenID, 
-            string template_id,
-            string page,
-            object data
-        )
-        {
-            var msgJson = JObject.FromObject(data);
+        ///// <summary>
+        ///// 发送订阅消息
+        ///// </summary>
+        ///// <param name="toUserOpenID">接受者的openid</param>
+        ///// <param name="template_id">模板id</param>
+        ///// <param name="page">点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转</param>
+        ///// <param name="data">模板内容</param>
+        ///// <returns></returns>
+        //public async Task<ResultReturn> Send(string appID, string toUserOpenID,
+        //    string template_id,
+        //    string page,
+        //    object data
+        //)
+        //{
+        //    var visitor = data.V();
 
-            return await Send(appID, toUserOpenID, template_id, page, msgJson);
-        }
+        //    visitor.GetContext().
+
+        //    var json = new JObject();
+
+        //    visitor.ForEach(new Action<string, object>((name, value) =>
+        //    {
+        //        var v = new JObject();
+        //        v.Add("value", value.ToStringEx());
+
+        //        json.Add(name, v);
+        //    }));
+
+        //    visitor.ForEach(context =>
+        //    {
+                
+        //    }).Run();
+
+        //    var msgJson = JObject.FromObject(data);
+
+        //    return await Send(appID, toUserOpenID, template_id, page, msgJson);
+        //}
 
         /// <summary>
         /// 发送订阅消息
@@ -201,17 +237,7 @@ namespace Kugar.WechatSDK.MiniProgram
                 });
             }
 
-            var args = new JObject()
-            {
-                ["touser"] = toUserOpenID,
-                ["template_id"] = template_id,
-                ["page"] = page,
-                ["data"] = json
-            };
-
-            var result = await CommonApi.Post(appID, "/cgi-bin/message/subscribe/send?access_token=ACCESS_TOKEN", args);
-
-            return result;
+            return await sendInternal(appID,toUserOpenID,template_id,page, json);
         }
 
         /// <summary>
@@ -228,22 +254,42 @@ namespace Kugar.WechatSDK.MiniProgram
             JObject data
         )
         {
-            var json = new JObject();
-
+            
+            
             foreach (var item in data)
             {
-                json.Add(item.Key,new JObject()
+                data[item.Key] = new JObject()
                 {
-                    ["value"]=item.Value
-                });
+                    ["value"] = item.Value
+                };
             }
+
+            return await sendInternal(appID,toUserOpenID,template_id,page, data);
+        }
+
+        private async Task<ResultReturn> sendInternal(string appID, string toUserOpenID,
+            string template_id,
+            string page,
+            JObject data
+        )
+        {
+            if (string.IsNullOrWhiteSpace(appID))
+            {
+                throw new ArgumentNullException(nameof(appID));
+            }
+
+            if (string.IsNullOrWhiteSpace(template_id))
+            {
+                throw new ArgumentNullException(nameof(template_id));
+            }
+
 
             var args = new JObject()
             {
                 ["touser"] = toUserOpenID,
                 ["template_id"] = template_id,
-                ["page"] = page,
-                ["data"] = json
+                ["page"] = page.ToStringEx(),
+                ["data"] = data
             };
 
             var result = await CommonApi.Post(appID, "/cgi-bin/message/subscribe/send?access_token=ACCESS_TOKEN", args);

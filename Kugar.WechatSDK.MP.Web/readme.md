@@ -1,5 +1,7 @@
 # 本类库主要用于微信公众号的Web接口,提供用户授权跳转,消息接收回复等功能
 
+## Token的验证地址Url为: Core/MPCallback/service/{appID}  //将{appID} 替换为你的公众号AppID
+
 ## 使用方法为:
 
 ```c#

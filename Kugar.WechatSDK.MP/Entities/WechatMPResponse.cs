@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using Kugar.Core.BaseStruct;
 using Kugar.Core.ExtMethod;
+using Kugar.WechatSDK.MP.Enums;
 
 namespace Kugar.WechatSDK.MP.Entities
 {

@@ -44,6 +44,32 @@ namespace Kugar.WechatSDK.Common
             return stream;
         }
 
+        public async Task<JObject> PostByForm(string url,MultipartFormDataContent formData)
+        {
+            Debugger.Break();
+
+            if (!url.StartsWith("http",StringComparison.CurrentCultureIgnoreCase))
+            {
+                url = _option.Value.BaseApiHost + url;
+            }
+
+            var response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = formData
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonStream = await response.Content.ReadAsStringAsync();
+
+                return JObject.Parse(jsonStream);
+            }
+            else
+            {
+                throw new WebException("接口访问错误") ;
+            }
+        }
+
         public async Task<JObject> SendApiJson(string url, HttpMethod httpMethod, JObject args=null)
         {
             Debugger.Break();
@@ -92,5 +118,6 @@ namespace Kugar.WechatSDK.Common
     public class WechatRequestOption
     {
         public string BaseApiHost { set; get; }
+
     }
 }
