@@ -62,7 +62,7 @@ namespace Kugar.WechatSDK.MP
                         var token = data.ReturnData.GetString("ticket");
                         var expire = data.ReturnData.GetInt("expires_in");
 
-                        x.AbsoluteExpiration=DateTimeOffset.Now.AddSeconds(expire-2);
+                        x.AbsoluteExpiration=DateTimeOffset.Now.AddSeconds(expire-60);
 
                         return token;
                     }

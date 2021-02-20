@@ -28,7 +28,7 @@ namespace Kugar.WechatSDK.Common.BackgroudTasks
                     if (!await accessTokenContainer.CheckAccessToken(item.appID))
                     {
                         await accessTokenContainer.RefreshAccessToken(item.appID);
-                    }    
+                    }
                 }
                 
             }

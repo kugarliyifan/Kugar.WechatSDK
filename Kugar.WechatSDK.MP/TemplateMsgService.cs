@@ -14,12 +14,109 @@ using Newtonsoft.Json.Linq;
 
 namespace Kugar.WechatSDK.MP
 {
-    public class TemplateMsg:MPBaseService
+    public interface ITemplateMsgService
+    {
+        /// <summary>
+        /// 构建公众号一次性订阅消息的授权跳转链接
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="template_id">模板消息ID</param>
+        /// <param name="scene">场景值,0-10000</param>
+        /// <param name="redirect_url">授权后回调地址,如果为空,,则为框架提供的默认回调地址</param>
+        /// <param name="reserved">用于保持回调数据的回传,如果为空,则为appId加密后的数据,默认使用des加密,密码为appId参数的值</param>
+        /// <returns>返回授权跳转的地址</returns>
+        string BuildSubscribeMsgUrl(string appId,
+            string template_id,
+            [Range(0,10000)]int scene,
+            string redirect_url = "",
+            string reserved = ""
+        );
+
+        /// <summary>
+        /// 推送消息模板订阅的消息给用户
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="openId">接收者OpenId</param>
+        /// <param name="template_id">模板消息ID</param>
+        /// <param name="scene">场景值</param>
+        /// <param name="title">消息标题</param>
+        /// <param name="content">消息内容</param>
+        /// <param name="gotoUrl">跳转的链接</param>
+        /// <param name="miniProgramAppId">小程序的OpenId,该小程序必须是已和公众号绑定,不需跳小程序可不用传该数据</param>
+        /// <param name="miniProgramPath">小程序跳转路径,支持带参数（示例index?foo=bar）</param>
+        /// <remarks>
+        /// url和miniprogram都是非必填字段，若都不传则模板无跳转；若都传，会优先跳转至小程序。开发者可根据实际需要选择其中一种跳转方式即可。当用户的微信客户端版本不支持跳小程序时，将会跳转至url。
+        /// </remarks>
+        /// <returns></returns>
+        Task<ResultReturn> SendSubscribeTemplateToUser(
+            string appId,
+            string openId,
+            string template_id,
+            string scene,
+            string title,
+            string content,
+            string gotoUrl="",
+            string miniProgramAppId="",
+            string miniProgramPath=""
+        );
+
+        /// <summary>
+        /// 向公众号添加一条新的模板消息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="templateShortId">模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式</param>
+        /// <returns></returns>
+        Task<ResultReturn<string>> AddTemplateMsg(string appId, string templateShortId);
+
+        /// <summary>
+        /// 发送模板消息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="openId"></param>
+        /// <param name="template_id"></param>
+        /// <param name="data"></param>
+        /// <param name="gotoUrl"></param>
+        /// <param name="miniProgramAppId"></param>
+        /// <param name="miniProgramPath"></param>
+        /// <returns></returns>
+        Task<ResultReturn> SendTemplateMsg(
+            string appId,
+            string openId,
+            string template_id,
+            TemplateMsgDataItem[] data,
+            string gotoUrl="",
+            string miniProgramAppId="",
+            string miniProgramPath=""
+        );
+
+        /// <summary>
+        /// 发送模板消息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="toUserOpenId"></param>
+        /// <param name="template_id"></param>
+        /// <param name="data"></param>
+        /// <param name="gotoUrl"></param>
+        /// <param name="miniProgramAppId"></param>
+        /// <param name="miniProgramPath"></param>
+        /// <returns></returns>
+        Task<ResultReturn> SendTemplateMsg(
+            string appId,
+            string toUserOpenId,
+            string template_id,
+            (string key,string value)[]  data,
+            string gotoUrl="",
+            string miniProgramAppId="",
+            string miniProgramPath=""
+        );
+    }
+
+    public class TemplateMsgService:MPBaseService, ITemplateMsgService
     {
         private IOptionsMonitor<MPRequestHostOption> _option = null;
         private IHttpContextAccessor _accessor = null;
 
-        public TemplateMsg(IOptionsMonitor<MPRequestHostOption> option, ICommonApi api,IHttpContextAccessor accessor=null) : base(api)
+        public TemplateMsgService(IOptionsMonitor<MPRequestHostOption> option, ICommonApi api,IHttpContextAccessor accessor=null) : base(api)
         {
             _option = option;
             _accessor = accessor;
@@ -131,6 +228,17 @@ namespace Kugar.WechatSDK.MP
             return ret.Cast(ret.ReturnData.GetString("template_id"),"");
         }
 
+        /// <summary>
+        /// 发送模板消息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="openId"></param>
+        /// <param name="template_id"></param>
+        /// <param name="data"></param>
+        /// <param name="gotoUrl"></param>
+        /// <param name="miniProgramAppId"></param>
+        /// <param name="miniProgramPath"></param>
+        /// <returns></returns>
         public async Task<ResultReturn> SendTemplateMsg(
             string appId,
             string openId,
@@ -176,9 +284,20 @@ namespace Kugar.WechatSDK.MP
             return ret;
         }
 
+        /// <summary>
+        /// 发送模板消息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="toUserOpenId"></param>
+        /// <param name="template_id"></param>
+        /// <param name="data"></param>
+        /// <param name="gotoUrl"></param>
+        /// <param name="miniProgramAppId"></param>
+        /// <param name="miniProgramPath"></param>
+        /// <returns></returns>
         public async Task<ResultReturn> SendTemplateMsg(
             string appId,
-            string openId,
+            string toUserOpenId,
             string template_id,
             (string key,string value)[]  data,
             string gotoUrl="",
@@ -188,7 +307,7 @@ namespace Kugar.WechatSDK.MP
         {
             var args = new JObject()
             {
-                ["touser"] = openId,
+                ["touser"] = toUserOpenId,
                 ["template_id"] = template_id
             };
 

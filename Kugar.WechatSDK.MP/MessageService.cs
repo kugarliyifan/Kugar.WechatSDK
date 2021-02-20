@@ -13,7 +13,32 @@ using Tencent;
 
 namespace Kugar.WechatSDK.MP
 {
-    public class MessageService:MPBaseService
+    public interface IMessageService
+    {
+        /// <summary>
+        /// 用于解密从微信服务器中,发送过来的加密信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        ResultReturn<string> DecryptMessage(string appId,string encryptMsg);
+
+        /// <summary>
+        /// 加密回复微信信息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="repsonseData"></param>
+        /// <returns></returns>
+        string  EncryptMessage(string appId, string repsonseData);
+
+        /// <summary>
+        /// 解码微信服务器推送过来的消息
+        /// </summary>
+        /// <param name="xmlData">必须是解密后的xml数据</param>
+        /// <returns></returns>
+        ResultReturn<WechatMPRequestBase> DecodeMPRequestMsg(string xmlData);
+    }
+
+    public class MessageService:MPBaseService, IMessageService
     {
         private IWechatGateway _gateway = null;
 
@@ -49,7 +74,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="repsonseData"></param>
         /// <returns></returns>
-        public ResultReturn<string> EncryptMessage(string appId, string repsonseData)
+        public  string  EncryptMessage(string appId, string repsonseData)
         {
             var config = _gateway.Get<MPConfiguration>(appId);
 
@@ -62,11 +87,11 @@ namespace Kugar.WechatSDK.MP
 
             if (ret==0)
             {
-                return new SuccessResultReturn<string>(encMsgData);
+                return encMsgData;
             }
             else
             {
-                return new FailResultReturn<string>("加密失败", ret);
+                return "加密失败";
             }
         }
 
@@ -170,6 +195,11 @@ namespace Kugar.WechatSDK.MP
                             result = new WechatMPRequestSubscribeMsgResult();
                             break;
                         }
+                        case "subscribe_msg_sent_event":
+                        {
+                            result = new WechatMPRequestSubscribeMsgSendResult();
+                            break;
+                        }
                     }
                     break;
                 }
@@ -183,7 +213,7 @@ namespace Kugar.WechatSDK.MP
             }
             else
             {
-                return new FailResultReturn<WechatMPRequestBase>($"未知消息类型:{msgType}");
+                return new FailResultReturn<WechatMPRequestBase>($"未知消息类型:{msgType}",1000);
             }
         }
 

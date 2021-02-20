@@ -3,35 +3,38 @@ using System.Collections.Generic;
 using System.Text;
 using Kugar.Core.ExtMethod;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Kugar.WechatSDK.MP.Entities
 {
+    [JsonConverter(typeof(MenuJsonConverter))]
     public class MPMenuBase
     {
         /// <summary>
         /// 菜单标题，不超过16个字节，子菜单不超过60个字节
         /// </summary>
-        public string Name { set; get; }   
+        public string Name { set; get; }
     }
 
     /// <summary>
     /// 主菜单按钮
     /// </summary>
-    public class MPMainMenu:MPMenuBase
+    public class MPMainMenu : MPMenuBase
     {
         /// <summary>
         /// 二级菜单数组，个数应为1~5个
         /// </summary>
-        public MPFunctionBase[] SubMenus { set; get; }
+        public IReadOnlyList<MPFunctionBase> SubMenus { set; get; }
     }
 
+    [JsonConverter(typeof(MenuJsonConverter))]
     public abstract class MPFunctionBase : MPMenuBase
     {
         /// <summary>
         /// 按钮类型
         /// </summary>
         public abstract string Type { get; }
-        
+
     }
 
     public abstract class MPFunctionWithKeyButton : MPFunctionBase
@@ -137,7 +140,7 @@ namespace Kugar.WechatSDK.MP.Entities
         /// <summary>
         /// 调用新增永久素材接口返回的合法media_id
         /// </summary>
-        public string MediaID { set;get; }
+        public string MediaID { set; get; }
     }
 
     /// <summary>
@@ -163,7 +166,7 @@ namespace Kugar.WechatSDK.MP.Entities
 
             if (value is MPFunctionBase functionBtn)
             {
-                writer.WriteProperty("type",functionBtn.Type);
+                writer.WriteProperty("type", functionBtn.Type);
 
                 if (value is MPFunctionWithKeyButton keyButton)
                 {
@@ -189,25 +192,158 @@ namespace Kugar.WechatSDK.MP.Entities
                     writer.WriteProperty("media_id", viewLimited.MediaID);
                 }
             }
-            else if (value is MPMainMenu mainMenu) 
+            else if (value is MPMainMenu mainMenu)
             {
                 writer.WritePropertyName("sub_button");
 
                 writer.WriteStartArray();
                 foreach (var item in mainMenu.SubMenus)
                 {
-                    serializer.Serialize(writer,item);
+                    serializer.Serialize(writer, item);
                 }
                 writer.WriteEndArray();
             }
-            
+
             writer.WriteEndObject();
         }
 
         public override MPMenuBase ReadJson(JsonReader reader, Type objectType, MPMenuBase existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            var json = (JObject)JObject.ReadFrom(reader);
+            
+            var type = json.GetString("type");
+            var name = json.GetString("name");
+            var key = json.GetString("key");
+
+            MPMenuBase menu = null;
+            
+            if (json.ContainsKey("sub_button"))
+            {
+                var subMenuJson=json.GetJObjectArray("sub_button");
+
+                var subMenus = new List<MPFunctionBase>();
+
+                foreach (var item in subMenuJson)
+                {
+                    var m = item.ToObject<MPFunctionBase>();
+
+                    subMenus.Add(m);
+                }
+
+                menu = new MPMainMenu()
+                {
+                    SubMenus = subMenus
+                };
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(type))
+                {
+                    switch (type)
+                    {
+                        case "click":
+                            {
+                                menu = new ClickButton()
+                                {
+                                    Key = key
+                                };
+                                break;
+                            }
+                        case "view":
+                            {
+                                menu = new UrlViewButton()
+                                {
+                                    Url = json.GetString("url")
+                                };
+                                break;
+                            }
+                        case "miniprogram":
+                            {
+                                menu = new MiniProgramButton()
+                                {
+                                    AppID = json.GetString("appid"),
+                                    PagePath = json.GetString("pagepath"),
+                                    Url = json.GetString("url")
+                                };
+                                break;
+                            }
+                        case "scancode_waitmsg":
+                            {
+                                menu = new ScanCodeAndWaitMsgButton()
+                                {
+                                    Key = key
+                                };
+                                break;
+                            }
+                        case "scancode_push":
+                            {
+                                menu = new ScanCodeAndPushButton()
+                                {
+                                    Key = key
+                                };
+                                break;
+                            }
+                        case "pic_sysphoto":
+                            {
+                                menu = new PicSysPhotoButton()
+                                {
+                                    Key = key
+                                };
+                                break;
+                            }
+                        case "pic_photo_or_album":
+                            {
+                                menu = new PhotoOrAlbumButton()
+                                {
+                                    Key = key
+                                };
+                                break;
+                            }
+                        case "pic_weixin":
+                            {
+                                menu = new WeixinPicButton()
+                                {
+                                    Key = key
+                                };
+                                break;
+                            }
+                        case "location_select":
+                            {
+                                menu = new LocationSelectButton()
+                                {
+                                    Key = key
+                                };
+                                break;
+                            }
+                        case "media_id":
+                            {
+                                menu = new MediaButton()
+                                {
+                                    MediaID = json.GetString("media_id")
+                                };
+                                break;
+                            }
+                        case "view_limited":
+                            {
+                                menu = new ViewLimitedButton()
+                                {
+                                    MediaID = json.GetString("media_id")
+                                };
+                                break;
+                            }
+                    }
+                }
+            }
+
+            if (menu!=null)
+            {
+                menu.Name = name;
+            }
+            
+            return menu;
         }
     }
+
+
 }

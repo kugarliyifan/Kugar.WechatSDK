@@ -17,11 +17,13 @@ namespace Kugar.WechatSDK.Common
 
         Task<ResultReturn<JObject>> Get(string appID, string url);
 
+        Task<(string contentType, Stream data)> GetRaw(string appId, string url);
+
         Task<ResultReturn<TResponseData>> Post<TResponseData>(string appID, string url,JObject args);
 
         Task<ResultReturn<JObject>> Post(string appID, string url,JObject args);
 
-        Task<Stream> PostRaw(string appID, string url, JObject args);
+        Task<(string contentType, Stream data)> PostRaw(string appID, string url, JObject args);
 
         Task<ResultReturn<JObject>> PostByForm(string appID, string url,params (string key, object data)[] dic);
 
@@ -107,6 +109,41 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
+        public async Task<(string contentType, Stream data)> GetRaw(string appId, string url)
+        {
+            var newUrl = await replaceUrlAccessToken(appId, url);
+            
+            //var reTryCount = 3;
+            
+            var s =await _request.GetRaw(newUrl);
+
+            return s;
+
+            //var errorCode = s.GetInt("errcode");
+ 
+            //while (errorCode==4001 || reTryCount<=0)
+            //{
+            //    s =await _request.Get(newUrl);
+
+            //    if (errorCode==0)
+            //    {
+            //        break; 
+            //    }
+            //    errorCode = s.GetInt("errcode");
+            //    reTryCount--;
+            //}
+
+            //if (errorCode==0)
+            //{
+            //    return new SuccessResultReturn<JObject>(s);
+            //}
+            //else
+            //{
+
+            //    return new FailResultReturn<JObject>(s.GetString("errmsg"), errorCode);
+            //}
+        }
+
         public async Task<ResultReturn<TResponseData>> Post<TResponseData>(string appID, string url,JObject args)
         {
             var newUrl = await replaceUrlAccessToken(appID, url);
@@ -173,7 +210,7 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
-        public async Task<Stream> PostRaw(string appID, string url, JObject args)
+        public async Task<(string contentType, Stream data)> PostRaw(string appID, string url, JObject args)
         {
             var newUrl = await replaceUrlAccessToken(appID, url);
             

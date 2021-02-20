@@ -18,6 +18,8 @@ namespace Kugar.WechatSDK.MP.Enums
 
         TemplateSendJobFinish,
 
-        SubscribeMsgPopup
+        SubscribeMsgPopup,
+
+        SubscribeMsgSendRsult,
     }
 }

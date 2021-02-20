@@ -206,7 +206,8 @@ namespace Kugar.WechatSDK.MP.Web
             [FromRoute] string appID = "",
             [FromServices] ILoggerFactory logger=null,
             [FromServices] IWechatMPApi mpApi=null,
-            [FromServices]MPMessageHandler msgHandler=null
+            [FromServices]MessageQueue msgHandler=null,
+            [FromServices] IMPMessageExecutor messageExecutor=null
             )
         {
             //return Content("");
@@ -227,17 +228,14 @@ namespace Kugar.WechatSDK.MP.Web
 
             if (config == null)
             {
-                return Content("该AppID非公众号配置");
+                return Content("该AppID非公众号配置或AppID不存在");
             }
 
             if (CheckSignature.Check(signature, timestamp, nonce, config.Token))
             {
                 return Content("校验无效,请检查token");
             }
-
-            // v4.2.2之后的版本，可以设置每个人上下文消息储存的最大数量，防止内存占用过多，如果该参数小于等于0，则不限制
-            var maxRecordCount = 10;
-
+            
             Request.EnableBuffering();
 
             //自定义MessageHandler，对微信请求的详细判断操作都在这里面。
@@ -252,11 +250,35 @@ namespace Kugar.WechatSDK.MP.Web
             {
                 if (await msgHandler.AddMessage(msg.ReturnData))
                 {
+                    var response = await messageExecutor.Execute(msg.ReturnData);
 
+                    if (response==null)
+                    {
+                        return Content("success");
+                    }
+
+                    //if (!string.IsNullOrWhiteSpace(config.EncryptAESKey))
+                    //{
+                    //    return Content(mpApi.Message.EncryptMessage(appID, response.ToXml()));
+                    //}
+
+                    return Content(response.ToXml());
+                }
+                else
+                {
+                    return Content("success");
                 }
             }
+            else
+            {
+                if (msg.ReturnCode==1000)
+                {
+                    return  Content("success");
+                }
 
-            return null;
+                return Content("error");
+            }
+            
         }
     }
 

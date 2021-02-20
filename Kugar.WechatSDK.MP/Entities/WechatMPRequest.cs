@@ -27,6 +27,8 @@ namespace Kugar.WechatSDK.MP.Entities
         /// </summary>
         public long ReceiveDt { set; get; }
 
+        public long CreateTime { set; get; }
+
         /// <summary>
         /// 消息,用于去重
         /// </summary>
@@ -50,9 +52,11 @@ namespace Kugar.WechatSDK.MP.Entities
             this.AppId = xmlNode.GetFirstNodeByTagName("ToUserName").InnerText;
             this.FromUserOpenId=xmlNode.GetFirstNodeByTagName("FromUserName").InnerText;
 
-            var dt =xmlNode.GetFirstNodeByTagName("CreateTime").InnerText.ToLong() ;
+            this.CreateTime = xmlNode.GetFirstNodeByTagName("CreateTime").InnerText.ToLong();
 
-            this.ReceiveDt = (DateTime.Now.ToUniversalTime().Ticks - dt) / 10000000;
+            //var dt =xmlNode.GetFirstNodeByTagName("CreateTime").InnerText.ToLong() ;
+
+            this.ReceiveDt = (DateTime.Now.ToUniversalTime().Ticks - this.CreateTime) / 10000000;
             this.MsgId=xmlNode.GetFirstNodeByTagName("MsgId").InnerText.ToLong() ;
 
             LoadFromXmlInternal(xmlNode);
@@ -71,10 +75,16 @@ namespace Kugar.WechatSDK.MP.Entities
         /// </summary>
         public string Content { set; get; }
 
+        /// <summary>
+        /// 用于在客服消息中,点击的菜单ID,,收到XML推送之后，开发者可以根据提取出来的bizmsgmenuid和Content识别出微信用户点击的是哪个菜单
+        /// </summary>
+        public string BizMsgMenuId { set; get; }
+
         public override WechatMPRequestMsgType MsgType => WechatMPRequestMsgType.Text;
         protected override void LoadFromXmlInternal(XmlNode xmlNode)
         {
             this.Content=xmlNode.GetFirstNodeByTagName("Content").InnerText;
+            this.BizMsgMenuId = xmlNode.GetFirstElementsByTagName("bizmsgmenuid").InnerText;
         }
         
     }
@@ -406,6 +416,9 @@ namespace Kugar.WechatSDK.MP.Entities
         public override WechatMPRequestEventType EventType => WechatMPRequestEventType.TemplateSendJobFinish;
     }
 
+    /// <summary>
+    /// 订阅消息的订阅结果通知
+    /// </summary>
     public class WechatMPRequestSubscribeMsgResult : WechatMPRequestEventBase
     {
         protected override void LoadFromXmlInternal(XmlNode xmlNode)
@@ -427,7 +440,10 @@ namespace Kugar.WechatSDK.MP.Entities
             Results = lst;
         }
 
-        public IReadOnlyCollection<SubscribeMsgPopupEventItem> Results { set; get; }
+        /// <summary>
+        /// 订阅结果
+        /// </summary>
+        public IReadOnlyList<SubscribeMsgPopupEventItem> Results { set; get; }
 
         public override WechatMPRequestEventType EventType => WechatMPRequestEventType.SubscribeMsgPopup;
 
@@ -435,10 +451,69 @@ namespace Kugar.WechatSDK.MP.Entities
         {
             public string TemplateId { set; get; }
 
+            /// <summary>
+            /// 用户是否接受
+            /// </summary>
             public bool IsAccept { set; get; }
 
+            /// <summary>
+            /// 订阅的场景值
+            /// </summary>
             public string Scene { set; get; }
         }
+    }
+
+    /// <summary>
+    /// 公众号订阅消息的发送结果
+    /// </summary>
+    public class WechatMPRequestSubscribeMsgSendResult : WechatMPRequestEventBase
+    {
+        protected override void LoadFromXmlInternal(XmlNode xmlNode)
+        {
+            var xmlNodelst = xmlNode.GetFirstNodeByTagName("SubscribeMsgSentEvent");
+
+            var lst = new List<SubscribeMsgSendResultItem>(xmlNodelst.ChildNodes.Count);
+
+            foreach (XmlNode node in xmlNodelst.ChildNodes)
+            {
+                var errorCode = node.GetFirstNodeByTagName("ErrorCode").ToInt();
+
+
+                lst.Add(new SubscribeMsgSendResultItem()
+                {
+                    TemplateId = node.GetFirstNodeByTagName("TemplateId").InnerText,
+                    IsSuccess = errorCode==0,
+                    ErrorCode = errorCode,
+                    MsgId = node.GetFirstNodeByTagName("MsgID").InnerText,
+                    RawErrorStatus = node.GetFirstNodeByTagName("ErrorStatus").InnerText
+                });
+            }
+
+            Results = lst;
+        }
+
+        /// <summary>
+        /// 发送的结果
+        /// </summary>
+        public IReadOnlyList<SubscribeMsgSendResultItem> Results { set; get; }
+
+        public class SubscribeMsgSendResultItem
+        {
+            public string TemplateId { set; get; }
+
+            public int ErrorCode { set; get; }
+
+            /// <summary>
+            /// 发送是否成功,,如果不成功,请查看ErrorCode和RawErrorStatus
+            /// </summary>
+            public bool IsSuccess { set; get; }
+
+            public string RawErrorStatus { set; get; }
+
+            public string MsgId { set; get; }
+        }
+
+        public override WechatMPRequestEventType EventType => WechatMPRequestEventType.SubscribeMsgSendRsult;
     }
 
     public class WechatMPRequestCompare:IEqualityComparer<WechatMPRequestBase>

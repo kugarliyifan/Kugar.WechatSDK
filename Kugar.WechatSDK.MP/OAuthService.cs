@@ -44,6 +44,13 @@ namespace Kugar.WechatSDK.MP
         /// <returns></returns>
         Task<ResultReturn<RefreshAccessToken_Result>> RefreshAccessToken(string appID, string accessToken);
 
+        /// <summary>
+        /// 通过openid和accesstoken获取用户信息,如果要只通过openid获取,可使用IWechatMPApi.UserManagement.GetUserInfo获取,如果需要获取用户信息信息,需要用户为已关注用户才可以,否则只能获取基础信息
+        /// </summary>
+        /// <param name="appID"></param>
+        /// <param name="openID"></param>
+        /// <param name="accessToken"></param>
+        /// <returns></returns>
         Task<ResultReturn<WxUserInfo_Result>> GetUserInfo(string appID,string openID, string accessToken);
 
         /// <summary>
@@ -140,7 +147,7 @@ namespace Kugar.WechatSDK.MP
             }
             else
             {
-                return result.Cast<GetAccessToken_Result>(null, null);
+                return result.Cast<GetAccessToken_Result>(default);
             }
         }
 

@@ -16,8 +16,8 @@ namespace Kugar.WechatSDK.Common
 {
     public class AccessTokenContainer:IAccessTokenContainer
     {
-        private Dictionary<string, (string appID, string appSerect)> _config =
-            new Dictionary<string, (string appID, string appSerect)>();
+        private ConcurrentDictionary<string, (string appID, string appSerect)> _config =
+            new ConcurrentDictionary<string, (string appID, string appSerect)>();
 
         private IMemoryCache _accessTokenCache = null;
         private ILoggerFactory _loggerFactory = null;
@@ -88,7 +88,7 @@ namespace Kugar.WechatSDK.Common
 
         public async Task<string> RefreshAccessToken(string appId)
         {
-            _config.Remove(appId);
+            _config.Remove(appId,out _);
             return await GetAccessToken(appId);
         }
 
@@ -141,13 +141,13 @@ namespace Kugar.WechatSDK.Common
 
         public void Remove(string appId)
         {
-            _config.Remove(appId);
+            _config.Remove(appId,out _);
             _accessTokenCache.Remove(appId);
         }
         
-        internal void RemoveAccessToken(string appId)
-        {
-            _accessTokenCache.Remove(appId);
-        }
+        //internal void RemoveAccessToken(string appId)
+        //{
+        //    _accessTokenCache.Remove(appId);
+        //}
     }
 }

@@ -30,6 +30,14 @@ namespace Kugar.WechatSDK.Common
             return json;
         }
 
+        public async Task<(string contentType,Stream data)> GetRaw(string url)
+        {
+            var raw = await SendApiRaw(url, HttpMethod.Get);
+
+            return raw;
+        }
+
+
         public async Task<JObject> Post(string url, JObject args)
         {
             var json = await SendApiJson(url, HttpMethod.Post, args);
@@ -37,7 +45,7 @@ namespace Kugar.WechatSDK.Common
             return json;
         }
 
-        public async Task<Stream> PostRaw(string url, JObject args)
+        public async Task<(string contentType,Stream data)> PostRaw(string url, JObject args)
         {
             var stream = await SendApiRaw(url, HttpMethod.Post, args);
 
@@ -79,11 +87,19 @@ namespace Kugar.WechatSDK.Common
                 url = _option.Value.BaseApiHost + url;
             }
 
-            var response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,url)
+            HttpResponseMessage response;
+            if (httpMethod== HttpMethod.Get)
             {
-                Content = new StringContent(args.ToStringEx(Formatting.None), Encoding.UTF8,"application/json")
-            });
-
+                response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,_option.Value.BaseApiHost + url));
+            }
+            else
+            {
+                response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,url)
+                {
+                    Content = new StringContent(args.ToStringEx(Formatting.None), Encoding.UTF8,"application/json")
+                });
+            }
+            
             if (response.IsSuccessStatusCode)
             {
                 var jsonStream = await response.Content.ReadAsStringAsync();
@@ -96,16 +112,37 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
-        public async Task<Stream> SendApiRaw(string url, HttpMethod httpMethod, JObject args=null)
+        public async Task<(string contentType,Stream data)> SendApiRaw(string url, HttpMethod httpMethod, JObject args=null)
         {
-            var response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,_option.Value.BaseApiHost + url)
+            HttpResponseMessage response;
+
+            if (httpMethod== HttpMethod.Get)
             {
-                Content = new StringContent(args.ToStringEx(Formatting.None), Encoding.UTF8,"application/json")
-            });
+                response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,_option.Value.BaseApiHost + url));
+            }
+            else
+            {
+                response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,_option.Value.BaseApiHost + url)
+                {
+                    Content = new StringContent(args.ToStringEx(Formatting.None), Encoding.UTF8,"application/json")
+                });
+            }
+
+            
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStreamAsync();
+                var contentType = "";
+
+                if (response.Headers.TryGetValues("content-type", out var v))
+                {
+                    if (v.HasData())
+                    {
+                        contentType = v.JoinToString(',');
+                    }
+                }
+
+                return (contentType,await response.Content.ReadAsStreamAsync());
                 
             }
             else

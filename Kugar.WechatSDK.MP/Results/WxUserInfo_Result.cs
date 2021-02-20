@@ -43,8 +43,20 @@ namespace Kugar.WechatSDK.MP.Results
         public string SubscribeScene { set; get; }
 
         /// <summary>
+        /// 标签
+        /// </summary>
+        public int[] Tags { set; get; }
+
+        /// <summary>
         /// 如果是扫码关注的,为扫码的场景值
         /// </summary>
         public string QrScene { set; get; }
+
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string Remark { set; get; }
+
+        public int GroupId { set; get; }
     }
 }
