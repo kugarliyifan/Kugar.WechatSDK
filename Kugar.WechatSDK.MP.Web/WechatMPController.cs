@@ -235,7 +235,12 @@ namespace Kugar.WechatSDK.MP.Web
             {
                 return Content("校验无效,请检查token");
             }
-            
+
+            if (messageExecutor==null)
+            {
+                return Content("success");
+            }
+
             Request.EnableBuffering();
 
             //自定义MessageHandler，对微信请求的详细判断操作都在这里面。

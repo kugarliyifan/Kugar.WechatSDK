@@ -8,6 +8,7 @@ using Kugar.Core.ExtMethod;
 using Kugar.WechatSDK.Common;
 using Kugar.WechatSDK.MP.Entities;
 using Kugar.WechatSDK.MP.Enums;
+using Kugar.WechatSDK.MP.Results;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -90,7 +91,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        Task<ResultReturn<(string title,string description,string down_url)>> GetVideoInfo(string appId, string mediaId);
+        Task<ResultReturn<GetVideoInfo_Result>> GetVideoInfo(string appId, string mediaId);
 
         Task<ResultReturn<Stream>> GetImageStream(
             string appId, 
@@ -138,7 +139,7 @@ namespace Kugar.WechatSDK.MP
         /// </summary>
         /// <param name="appId"></param>
         /// <returns></returns>
-        Task<ResultReturn<(int voiceCount,int videoCount,int imageCount,int newsCount)>> GetMediaCount(string appId);
+        Task<ResultReturn<GetMediaCount_Result>> GetMediaCount(string appId);
     }
 
     /// <summary>
@@ -390,7 +391,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        public async Task<ResultReturn<(string title,string description,string down_url)>> GetVideoInfo(string appId, string mediaId)
+        public async Task<ResultReturn<GetVideoInfo_Result>> GetVideoInfo(string appId, string mediaId)
         {
             var mediaInifo = await CommonApi.Post(appId,
                 "/cgi-bin/material/get_material?access_token=ACCESS_TOKEN",
@@ -402,17 +403,18 @@ namespace Kugar.WechatSDK.MP
 
             if (mediaInifo.IsSuccess)
             {
-                return new SuccessResultReturn<(string title, string description, string down_url)>(
-                    (
-                        mediaInifo.ReturnData.GetString("title"),
-                        mediaInifo.ReturnData.GetString("description"),
-                        mediaInifo.ReturnData.GetString("down_url")
-                    )
+                return new SuccessResultReturn<GetVideoInfo_Result>(
+                    new GetVideoInfo_Result()
+                    {
+                        Title = mediaInifo.ReturnData.GetString("title"),
+                        Description = mediaInifo.ReturnData.GetString("description"),
+                        DownloadUrl = mediaInifo.ReturnData.GetString("down_url")
+                    }
                 );
             }
             else
             {
-                return mediaInifo.Cast(("","",""));
+                return mediaInifo.Cast<GetVideoInfo_Result>(default);
             }
         }
 
@@ -563,7 +565,7 @@ namespace Kugar.WechatSDK.MP
         /// </summary>
         /// <param name="appId"></param>
         /// <returns></returns>
-        public async Task<ResultReturn<(int voiceCount,int videoCount,int imageCount,int newsCount)>> GetMediaCount(string appId)
+        public async Task<ResultReturn<GetMediaCount_Result>> GetMediaCount(string appId)
         {
             var json= await CommonApi.Get(appId, 
                 "/cgi-bin/material/get_materialcount?access_token=ACCESS_TOKEN");
@@ -572,19 +574,19 @@ namespace Kugar.WechatSDK.MP
             {
                 var data = json.ReturnData;
 
-                return new SuccessResultReturn<(int voiceCount, int videoCount, int imageCount, int newsCount)>(
-
-                    (
-                        data.GetInt("voice_count"),
-                        data.GetInt("video_count"),
-                        data.GetInt("image_count"),
-                        data.GetInt("news_count")
-                    )
+                return new SuccessResultReturn<GetMediaCount_Result>(
+                    new GetMediaCount_Result()
+                    {
+                        VoiceCount = data.GetInt("voice_count"),
+                        VideoCount = data.GetInt("video_count"),
+                        ImageCount = data.GetInt("image_count"),
+                        NewsCount = data.GetInt("news_count")
+                    }
                 );
             }
             else
             {
-                return json.Cast((0, 0, 0, 0));
+                return json.Cast<GetMediaCount_Result>(default);
             }
         }
 

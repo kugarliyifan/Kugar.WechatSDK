@@ -40,6 +40,7 @@ namespace Kugar.WechatSDK.MP
             services.AddSingleton<IUrlService, UrlService>();
             services.AddSingleton<IMenuService, MenuService>();
             services.AddSingleton<IMessageService,MessageService>();
+            services.AddSingleton<MessageQueue>();
 
             services.AddSingleton<IWechatMPApi, WechatMPApi>(x =>
             {

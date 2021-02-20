@@ -12,11 +12,72 @@ using Newtonsoft.Json.Linq;
 
 namespace Kugar.WechatSDK.MP
 {
+    /// <summary>
+    /// 用户管理接口
+    /// </summary>
     public interface IUserManagementService
     {
-        IUserTagManagementService Tag { get; }
+        /// <summary>
+        /// 设置用户备注名称
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="userOpenId">用户OpenId</param>
+        /// <param name="remark">备注名(30个字符内)</param>
+        /// <returns></returns>
+        Task<ResultReturn> SetUserRemark(string appId, string userOpenId, string remark);
 
-        
+        /// <summary>
+        /// 通过OpenId获取订阅用户信息,如果未关注的用户,只能获取到基础信息,已关注用户可以获取到详细信息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="userOpenId"></param>
+        /// <returns></returns>
+        Task<ResultReturn<SubscribeWxUserInfo_Result>> GetSubscribeUserInfo(string appId, string userOpenId);
+
+        /// <summary>
+        /// 批量通过OpenId列表获取用户信息,如果未关注的用户,只能获取到基础信息,已关注用户可以获取到详细信息
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="userOpenIds"></param>
+        /// <returns></returns>
+        Task<ResultReturn<IReadOnlyList<SubscribeWxUserInfo_Result>>> BatchGetSubscribeUserInfo(
+            string appId, string[] userOpenIds);
+
+        /// <summary>
+        /// 分页获取用户OpenId列表
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="nextUserOpenId">上一次最后一条记录的OpenId,如果第一次获取,传空字符串</param>
+        /// <returns></returns>
+        Task<ResultReturn<GetUserOpenIds_Result>> GetUserOpenIds(
+            string appId, string nextUserOpenId="");
+
+        /// <summary>
+        /// 获取黑名单用户列表
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="nextUserOpenId">上一次最后一条记录的OpenId,如果第一次获取,传空字符串</param>
+        /// <returns></returns>
+        Task<ResultReturn<GetUserOpenIds_Result>> GetBlacklistUserOpenIds(string appId,
+            string nextUserOpenId="");
+
+        /// <summary>
+        /// 批量设置用户到黑名单
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="userOpenIds"></param>
+        /// <returns></returns>
+        Task<ResultReturn> BatchSetUserToBlacklist(string appId, string[] userOpenIds);
+
+        /// <summary>
+        /// 批量取消用户黑名单
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="userOpenIds"></param>
+        /// <returns></returns>
+        Task<ResultReturn> BatchCancelUserToBlacklist(string appId, string[] userOpenIds);
+
+        IUserTagManagementService Tag { get; }
     }
 
     public class UserManagementService:MPBaseService, IUserManagementService
