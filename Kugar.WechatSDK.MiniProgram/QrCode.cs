@@ -108,13 +108,13 @@ namespace Kugar.WechatSDK.MiniProgram
                 ["width"] = width
             });
 
-            if (data.Length>100)
+            if (data.data.Length>100)
             {
-                return new SuccessResultReturn<Stream>(data);
+                return new SuccessResultReturn<Stream>(data.data);
             }
             else
             {
-                var jsonStr = data.ReadToEnd(Encoding.UTF8);
+                var jsonStr = data.data.ReadToEnd(Encoding.UTF8);
 
                 var json = JObject.Parse(jsonStr);
 
@@ -174,13 +174,13 @@ namespace Kugar.WechatSDK.MiniProgram
                 ["is_hyaline"] = is_hyaline
             });
 
-            if (data.Length>100)
+            if (data.data.Length>100)
             {
-                return new SuccessResultReturn<Stream>(data);
+                return new SuccessResultReturn<Stream>(data.data);
             }
             else
             {
-                var jsonStr = data.ReadToEnd(Encoding.UTF8);
+                var jsonStr = data.data.ReadToEnd(Encoding.UTF8);
 
                 var json = JObject.Parse(jsonStr);
 
@@ -242,13 +242,13 @@ namespace Kugar.WechatSDK.MiniProgram
                 ["is_hyaline"] = is_hyaline
             });
 
-            if (data.Length>100)
+            if (data.data.Length>100)
             {
-                return new SuccessResultReturn<Stream>(data);
+                return new SuccessResultReturn<Stream>(data.data);
             }
             else
             {
-                var jsonStr = data.ReadToEnd(Encoding.UTF8);
+                var jsonStr = data.data.ReadToEnd(Encoding.UTF8);
 
                 var json = JObject.Parse(jsonStr);
 

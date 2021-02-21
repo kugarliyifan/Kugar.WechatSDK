@@ -114,6 +114,6 @@ namespace Kugar.WechatSDK.MP
         public IUserManagementService UserManagement { get; }
         public IQrCodeService QrCode { get; }
         public IUrlService Url { get; }
-        public CustomService KFManagement { get; }
+        public KFManagementService KFManagement { get; }
     }
 }

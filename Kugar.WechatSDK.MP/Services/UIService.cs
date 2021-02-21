@@ -85,7 +85,7 @@ namespace Kugar.WechatSDK.MP
 
             var v=args.ReturnData;
 
-            return string.Format(_wxConfigScriptTemplate, isDebug.ToString().ToLower(), v.AppID, v.Timestamp.ToString(),
+            return string.Format(_wxConfigScriptTemplate, isDebug.ToString().ToLower(), v.AppId, v.Timestamp.ToString(),
                 v.NonceStr, v.Signature, functions.JoinToString(",", "\'", "\'"));
 
         }

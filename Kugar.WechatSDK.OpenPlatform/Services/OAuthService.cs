@@ -284,7 +284,7 @@ namespace Kugar.WechatSDK.OpenPlatform.Services
             var timestamp = DateTimeHelper.GetUnixDateTime(DateTime.Now);
             
             var waitSignStr =
-                $"appid={appId}&noncestr={nonce}&sdk_ticket={jsTicket}&timestamp={timestamp.ToStringEx()}&url={url}";
+                $"appid={appId}&noncestr={nonce}&sdk_ticket={jsTicket}&timestamp={timestamp.ToStringEx()}";
 
             var signStr = EncryptHelper.GetSha1(waitSignStr);
 
