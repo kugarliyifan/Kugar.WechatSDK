@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -105,6 +106,7 @@ namespace Kugar.WechatSDK.MP
     /// <summary>
     /// 群发消息接口
     /// </summary>
+    [Browsable(false)]
     public class BrocastMsgService : MPBaseService, IBrocastMsgService
     {
         public BrocastMsgService(ICommonApi api) : base(api)

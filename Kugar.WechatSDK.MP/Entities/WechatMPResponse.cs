@@ -17,7 +17,7 @@ namespace Kugar.WechatSDK.MP.Entities
         /// <summary>
         /// 消息类型
         /// </summary>
-        public virtual WechatResposeMsgType Type { get; }
+        public abstract WechatResposeMsgType Type { get; }
 
         /// <summary>
         /// 发送方AppID
@@ -30,6 +30,7 @@ namespace Kugar.WechatSDK.MP.Entities
         public string ToUserOpenID { set; get; }
 
         public abstract string ToXml();
+        
 
         public virtual ResultReturn Validate() => SuccessResultReturn.Default;
     }
@@ -174,6 +175,8 @@ namespace Kugar.WechatSDK.MP.Entities
         /// </summary>
         public string Description{set; get; }
 
+        public override WechatResposeMsgType Type => WechatResposeMsgType.Video;
+
         public override string ToXml()
         {
             return $@"<xml>
@@ -219,6 +222,8 @@ namespace Kugar.WechatSDK.MP.Entities
         /// 缩略图的媒体id，通过素材管理中的接口上传多媒体文件，得到的id
         /// </summary>
         public string ThumbMediaId { set; get; }
+
+        public override WechatResposeMsgType Type => WechatResposeMsgType.Audio;
 
         public override string ToXml()
         {
@@ -281,6 +286,8 @@ namespace Kugar.WechatSDK.MP.Entities
         /// </summary>
         public string Media_ID { set; get; }
 
+        public override WechatResposeMsgType Type => WechatResposeMsgType.Voice;
+
         public override string ToXml()
         {
             return $@"<xml>
@@ -292,6 +299,45 @@ namespace Kugar.WechatSDK.MP.Entities
                             <MediaId><![CDATA[{Media_ID}]]></MediaId>
                         </Voice>
                     </xml>";
+        }
+    }
+
+    /// <summary>
+    /// 转发消息到客服系统
+    /// </summary>
+    public class WechatMPResponseTransferToCustomerServer : WechatMPResponseBase
+    {
+        /// <summary>
+        /// 指定客服账号,不指定可为空
+        /// </summary>
+        public string KFAccount { set; get; }
+
+        public override WechatResposeMsgType Type => WechatResposeMsgType.Other;
+
+        public override string ToXml()
+        {
+            if (string.IsNullOrWhiteSpace(KFAccount))
+            {
+                return $@"<xml>
+                        <ToUserName><![CDATA[{ToUserOpenID}]]></ToUserName>
+                        <FromUserName><![CDATA[{AppID}]]></FromUserName>
+                        <CreateTime>{DateTime.Now.ToJavaScriptMilliseconds().ToStringEx()}</CreateTime>
+                        <MsgType><![CDATA[transfer_customer_service]]></MsgType>
+                    </xml>";
+            }
+            else
+            {
+                return $@"<xml>
+                        <ToUserName><![CDATA[{ToUserOpenID}]]></ToUserName>
+                        <FromUserName><![CDATA[{AppID}]]></FromUserName>
+                        <CreateTime>{DateTime.Now.ToJavaScriptMilliseconds().ToStringEx()}</CreateTime>
+                        <MsgType><![CDATA[transfer_customer_service]]></MsgType>
+                        <TransInfo> 
+                            <KfAccount><![CDATA[{KFAccount}]]></KfAccount> 
+                        </TransInfo> 
+                    </xml>";
+            }
+            
         }
     }
 }

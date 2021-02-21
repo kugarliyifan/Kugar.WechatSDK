@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using Kugar.WechatSDK.Common;
 using Kugar.WechatSDK.Common.Gateway;
+using Kugar.WechatSDK.MP.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -40,6 +41,7 @@ namespace Kugar.WechatSDK.MP
             services.AddSingleton<IUrlService, UrlService>();
             services.AddSingleton<IMenuService, MenuService>();
             services.AddSingleton<IMessageService,MessageService>();
+            services.AddSingleton<KFManagementService>();
             services.AddSingleton<MessageQueue>();
 
             services.AddSingleton<IWechatMPApi, WechatMPApi>(x =>
@@ -69,7 +71,8 @@ namespace Kugar.WechatSDK.MP
                     (ISubscriptionMsgService)x.GetService(typeof(ISubscriptionMsgService)),
                     (IUserManagementService)x.GetService(typeof(IUserManagementService)),
                     (IQrCodeService)x.GetService(typeof(IQrCodeService)),
-                    (IUrlService)x.GetService(typeof(IUrlService))
+                    (IUrlService)x.GetService(typeof(IUrlService)),
+                    (KFManagementService)x.GetService(typeof(KFManagementService))
                 );
             });
             

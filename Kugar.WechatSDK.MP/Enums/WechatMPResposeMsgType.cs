@@ -6,7 +6,17 @@
     public enum WechatResposeMsgType
     {
         Text=0,
+
         Image=1,
-        News=2
+
+        News=2,
+
+        Video,
+
+        Voice,
+
+        Audio,
+
+        Other=99
     }
 }

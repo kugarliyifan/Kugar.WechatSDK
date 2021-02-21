@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Kugar.WechatSDK.MP.Services;
 
 namespace Kugar.WechatSDK.MP
 {
@@ -61,6 +62,11 @@ namespace Kugar.WechatSDK.MP
         /// 推广相关的短连接及短key相关模块
         /// </summary>
         IUrlService Url { get; }
+
+        /// <summary>
+        /// 客服管理模块
+        /// </summary>
+        KFManagementService KFManagement { get; }
     }
 
     public class WechatMPApi : IWechatMPApi
@@ -76,7 +82,8 @@ namespace Kugar.WechatSDK.MP
             ISubscriptionMsgService subscriptionMsg,
             IUserManagementService userManagement,
             IQrCodeService qrCode,
-            IUrlService url
+            IUrlService url,
+            KFManagementService kfManagement
             )
         {
             Debugger.Break();
@@ -91,6 +98,7 @@ namespace Kugar.WechatSDK.MP
             UserManagement = userManagement;
             QrCode = qrCode;
             Url = url;
+            KFManagement = kfManagement;
         }
 
         public IMenuService Menu { get; }
@@ -106,5 +114,6 @@ namespace Kugar.WechatSDK.MP
         public IUserManagementService UserManagement { get; }
         public IQrCodeService QrCode { get; }
         public IUrlService Url { get; }
+        public CustomService KFManagement { get; }
     }
 }

@@ -60,7 +60,7 @@ namespace Kugar.WechatSDK.MP
 
             return new SuccessResultReturn<JsUIArgument>(new JsUIArgument()
             {
-                AppID = appID,
+                AppId = appID,
                 NonceStr = nonce,
                 Signature = signStr,
                 Timestamp = timestamp

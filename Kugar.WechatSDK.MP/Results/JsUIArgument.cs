@@ -6,7 +6,7 @@ namespace Kugar.WechatSDK.MP.Results
 {
     public class JsUIArgument
     {
-        public string AppID { set; get; }
+        public string AppId { set; get; }
 
         public long Timestamp { set; get; }
 

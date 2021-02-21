@@ -1,32 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Kugar.Core.ExtMethod;
 using Kugar.WechatSDK.Common;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-namespace Kugar.WechatSDK.MP
+namespace Kugar.WechatSDK.OpenPlatform
 {
-    public interface IJsTicketContainer
+    public interface ISdkTicketContrainer
     {
-        /// <summary>
-        /// 获取JsTicket
-        /// </summary>
-        /// <param name="appID"></param>
-        /// <returns></returns>
-        Task<string> GetJsTicket(string appID);
-
+        Task<string> GetSdkTicket(string appID);
         bool Register(string appID);
-
         void Remove(string appID);
-
         IEnumerable<string> GetAllAppIDs();
     }
 
-    public class JsTicketContainer : IJsTicketContainer
+    public class SdkTicketContrainer : ISdkTicketContrainer
     {
         private HashSet<string> _config =new HashSet<string>();
 
@@ -34,19 +26,14 @@ namespace Kugar.WechatSDK.MP
         private ILoggerFactory _loggerFactory = null;
         private ICommonApi _api = null;
 
-        public JsTicketContainer(IMemoryCache cache,ICommonApi api,ILoggerFactory loggerFactory)
+        public SdkTicketContrainer(IMemoryCache cache,ICommonApi api,ILoggerFactory loggerFactory)
         {
             _accessTokenCache = cache;
             _loggerFactory = loggerFactory;
             _api = api;
         }
 
-        /// <summary>
-        /// 获取JsTicket
-        /// </summary>
-        /// <param name="appID"></param>
-        /// <returns></returns>
-        public async Task<string> GetJsTicket(string appID)
+        public async Task<string> GetSdkTicket(string appID)
         {
             return await _accessTokenCache.GetOrCreateAsync(appID,async x =>
             {
@@ -54,7 +41,7 @@ namespace Kugar.WechatSDK.MP
                 {
                     Debugger.Break();
                     var data=await _api.Get(appID,
-                        $"/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=jsapi");
+                        $"/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=2");
 
                     //var data=await WebHelper.Create($"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appID}&secret={tmp.appSerect}")
                     //    .Get_JsonAsync();
@@ -70,8 +57,8 @@ namespace Kugar.WechatSDK.MP
                     }
                     else
                     {
-                        _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"调用微信获取token失败,错误代码:{data.ReturnCode.ToStringEx()}");
-                        throw new Exception($"调用微信获取token失败,错误代码:{data.ReturnCode.ToStringEx()}");
+                        _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"调用微信获取sdkticket失败,错误代码:{data.ReturnCode.ToStringEx()}");
+                        throw new Exception($"调用微信获取sdkticket失败,错误代码:{data.ReturnCode.ToStringEx()}");
                     }
                 }
                 else
@@ -95,6 +82,5 @@ namespace Kugar.WechatSDK.MP
         {
             return _config;
         }
-        
     }
 }
