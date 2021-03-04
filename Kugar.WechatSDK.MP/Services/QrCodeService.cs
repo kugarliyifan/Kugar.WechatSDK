@@ -85,9 +85,9 @@ namespace Kugar.WechatSDK.MP
     /// </summary>
     public class QrCodeService:MPBaseService, IQrCodeService
     {
-        private IOptionsMonitor<MPRequestHostOption> _option = null;
+        private IOptionsMonitor<WechatRequestOption> _option = null;
 
-        public QrCodeService(ICommonApi api,IOptionsMonitor<MPRequestHostOption> option) : base(api)
+        public QrCodeService(ICommonApi api,IOptionsMonitor<WechatRequestOption> option) : base(api)
         {
             _option = option;
         }

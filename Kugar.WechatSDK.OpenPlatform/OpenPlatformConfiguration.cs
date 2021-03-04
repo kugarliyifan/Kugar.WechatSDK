@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using Kugar.WechatSDK.Common;
-using Microsoft.AspNetCore.Http;
 
-namespace Kugar.WechatSDK.MP
+namespace Kugar.WechatSDK.OpenPlatform
 {
-    public class MPConfiguration:WechatConfigurationBase
+    public class OpenPlatformConfiguration:WechatConfigurationBase
     {
         public string Token { set; get; }
 
         /// <summary>
-        /// 微信公众号消息推送的加密秘钥
+        /// 加密秘钥
         /// </summary>
         public string EncryptAESKey { set; get; }
         
@@ -27,10 +23,5 @@ namespace Kugar.WechatSDK.MP
     //    public string MPApiHost { set; get; }
 
         
-    //}
-
-    //public class WchatWebConfiguration
-    //{
-    //    public Func<IHttpContextAccessor> HttpContxtGetter { set; get; }
     //}
 }

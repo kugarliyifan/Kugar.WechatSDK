@@ -61,21 +61,25 @@ namespace Kugar.WechatSDK.Common
                 url = _option.Value.BaseApiHost + url;
             }
 
-            var response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(HttpMethod.Post, url)
+            using (var response = await _clientFactory.CreateClient("MPApi").SendAsync(
+                new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = formData
+                }))
             {
-                Content = formData
-            });
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonStream = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonStream = await response.Content.ReadAsStringAsync();
+                    return JObject.Parse(jsonStream);
+                }
+                else
+                {
+                    throw new WebException("接口访问错误") ;
+                }
+            }
 
-                return JObject.Parse(jsonStream);
-            }
-            else
-            {
-                throw new WebException("接口访问错误") ;
-            }
+            
         }
 
         public async Task<JObject> SendApiJson(string url, HttpMethod httpMethod, JObject args=null)
@@ -99,17 +103,22 @@ namespace Kugar.WechatSDK.Common
                     Content = new StringContent(args.ToStringEx(Formatting.None), Encoding.UTF8,"application/json")
                 });
             }
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonStream = await response.Content.ReadAsStringAsync();
 
-                return JObject.Parse(jsonStream);
-            }
-            else
+            using (response)
             {
-                throw new WebException("接口访问错误") ;
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonStream = await response.Content.ReadAsStringAsync();
+
+                    return JObject.Parse(jsonStream);
+                }
+                else
+                {
+                    throw new WebException("接口访问错误") ;
+                }
             }
+
+            
         }
 
         public async Task<(string contentType,Stream data)> SendApiRaw(string url, HttpMethod httpMethod, JObject args=null)
@@ -128,27 +137,30 @@ namespace Kugar.WechatSDK.Common
                 });
             }
 
-            
-
-            if (response.IsSuccessStatusCode)
+            using (response)
             {
-                var contentType = "";
-
-                if (response.Headers.TryGetValues("content-type", out var v))
+                if (response.IsSuccessStatusCode)
                 {
-                    if (v.HasData())
-                    {
-                        contentType = v.JoinToString(',');
-                    }
-                }
+                    var contentType = "";
 
-                return (contentType,await response.Content.ReadAsStreamAsync());
+                    if (response.Headers.TryGetValues("content-type", out var v))
+                    {
+                        if (v.HasData())
+                        {
+                            contentType = v.JoinToString(',');
+                        }
+                    }
+
+                    return (contentType,await response.Content.ReadAsStreamAsync());
                 
+                }
+                else
+                {
+                    throw new WebException("接口访问错误") ;
+                }
             }
-            else
-            {
-                throw new WebException("接口访问错误") ;
-            }
+
+            
         }
     }
 
@@ -156,5 +168,6 @@ namespace Kugar.WechatSDK.Common
     {
         public string BaseApiHost { set; get; }
 
+        public string MPApiHost { set; get; }
     }
 }

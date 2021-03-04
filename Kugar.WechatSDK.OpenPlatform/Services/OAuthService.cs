@@ -59,6 +59,22 @@ namespace Kugar.WechatSDK.OpenPlatform.Services
         /// <param name="openID"></param>
         /// <returns></returns>
         Task<ResultReturn<SubscribeWxUserInfo_Result>> GetSubscribeUserInfo(string appID, string openID);
+
+        /// <summary>
+        /// 检验授权凭证（access_token）是否有效
+        /// </summary>
+        /// <param name="appID"></param>
+        /// <param name="openID"></param>
+        /// <param name="accessToken">用户的accessToken</param>
+        /// <returns></returns>
+        Task<bool> IsAccessTokenValidate(string appID, string openID, string accessToken);
+
+        /// <summary>
+        /// 获取移动应用扫码登录接口,用于提供给App进行移动端提供生成二维码并由用户扫码获取登录code使用<br/>详情请见:<a>https://developers.weixin.qq.com/doc/oplatform/Mobile_App/WeChat_Login/Login_via_Scan.html</a>
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        Task<ResultReturn<BuildAppScanQrcodeArgument_Result>> BuildAppScanQrcodeArgument(string appId);
     }
 
     /// <summary>

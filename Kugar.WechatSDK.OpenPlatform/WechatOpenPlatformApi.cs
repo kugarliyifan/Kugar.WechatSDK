@@ -24,6 +24,12 @@ namespace Kugar.WechatSDK.OpenPlatform
     /// </summary>
     public class WechatOpenPlatformApi : IWechatOpenPlatformApi
     {
+        public WechatOpenPlatformApi(IOAuthService oauth, ISubscriptionMsgService subscriptionMsg)
+        {
+            OAuth = oauth;
+            SubscriptionMsg = subscriptionMsg;
+        }
+
         /// <summary>
         /// 微信授权相关功能模块
         /// </summary>

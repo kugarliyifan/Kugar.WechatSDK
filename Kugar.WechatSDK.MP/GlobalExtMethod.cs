@@ -13,19 +13,13 @@ namespace Kugar.WechatSDK.MP
 {
     public static class GlobalExtMethod
     {
-        public static IServiceCollection AddWechatMP(this IServiceCollection services,
-            params MPConfiguration[] configurations)
-        {
-            return AddWechatMP(services, "https://mp.weixin.qq.com", configurations);
-        }
-
-        public static IServiceCollection AddWechatMP(this IServiceCollection services,
-            string mpApiHost,
+        public static IServiceCollection AddWechatMP(
+            this IServiceCollection services,
             params MPConfiguration[] configurations)
         {
             services.AddSingleton(typeof(OptionsManager<>));
             services.AddScoped<IHttpContextAccessor>();
-            services.AddOptions<MPRequestHostOption>().Configure(x => x.MPApiHost = mpApiHost);
+            //services.AddOptions<MPRequestHostOption>().Configure(x => x.MPApiHost = mpApiHost);
             services.AddSingleton<IOAuthService, OAuthService>();
             services.AddSingleton<IJsTicketContainer, JsTicketContainer>();
             services.AddSingleton<IMPMessageCache, DefaultMPMessageCache>();

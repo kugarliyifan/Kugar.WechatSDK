@@ -113,10 +113,10 @@ namespace Kugar.WechatSDK.MP
 
     public class TemplateMsgService:MPBaseService, ITemplateMsgService
     {
-        private IOptionsMonitor<MPRequestHostOption> _option = null;
+        private IOptionsMonitor<WechatRequestOption> _option = null;
         private IHttpContextAccessor _accessor = null;
 
-        public TemplateMsgService(IOptionsMonitor<MPRequestHostOption> option, ICommonApi api,IHttpContextAccessor accessor=null) : base(api)
+        public TemplateMsgService(IOptionsMonitor<WechatRequestOption> option, ICommonApi api,IHttpContextAccessor accessor=null) : base(api)
         {
             _option = option;
             _accessor = accessor;

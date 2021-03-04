@@ -14,12 +14,16 @@ namespace Kugar.WechatSDK.Common
 {
     public static class GlobalExtMethod
     {
-        public static IServiceCollection AddWechatGateway(this IServiceCollection services,string wechatApiHost="https://api.weixin.qq.com")
+        public static IServiceCollection AddWechatGateway(this IServiceCollection services,string wechatApiHost="https://api.weixin.qq.com",string mpApiHost="https://mp.weixin.qq.com")
         {
             services.AddHttpClient("MPApi")
                 .SetHandlerLifetime(TimeSpan.FromSeconds(10))
                 .AddPolicyHandler(GetRetryPolicy());
-            services.AddOptions<WechatRequestOption>( ).Configure(x=>x.BaseApiHost = wechatApiHost);
+            services.AddOptions<WechatRequestOption>().Configure(x =>
+            {
+                x.BaseApiHost = wechatApiHost;
+                x.MPApiHost = mpApiHost;
+            });
             services.AddScoped<HttpRequestHelper>();
             services.AddSingleton<IAccessTokenContainer, AccessTokenContainer>();
             services.AddSingleton<IWechatGateway,WechatGateway>();
