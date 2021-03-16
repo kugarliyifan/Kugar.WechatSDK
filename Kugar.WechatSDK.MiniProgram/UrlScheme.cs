@@ -26,7 +26,7 @@ namespace Kugar.WechatSDK.MiniProgram
     /// </summary>
     public class UrlScheme:BaseService, IUrlScheme
     {
-        public UrlScheme(CommonApi api) : base(api)
+        public UrlScheme(ICommonApi api) : base(api)
         {
         }
 

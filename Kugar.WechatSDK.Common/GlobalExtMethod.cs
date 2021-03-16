@@ -24,10 +24,10 @@ namespace Kugar.WechatSDK.Common
                 x.BaseApiHost = wechatApiHost;
                 x.MPApiHost = mpApiHost;
             });
-            services.AddScoped<HttpRequestHelper>();
+            services.AddSingleton<HttpRequestHelper>();
             services.AddSingleton<IAccessTokenContainer, AccessTokenContainer>();
             services.AddSingleton<IWechatGateway,WechatGateway>();
-            services.AddScoped<ICommonApi,CommonApi>();
+            services.AddSingleton<ICommonApi,CommonApi>();
 
             services.AddHostedService<AccessTokenRefreshTask>();
 

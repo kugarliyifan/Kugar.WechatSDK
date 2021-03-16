@@ -36,7 +36,7 @@ namespace Kugar.WechatSDK.Common
         private readonly HttpRequestHelper _request = null;
         private readonly IAccessTokenFactory _accessTokenFactory = null;
 
-        public CommonApi(IAccessTokenContainer accessTokenContainer,IAccessTokenFactory accessTokenFactory, HttpRequestHelper request)
+        public CommonApi(IAccessTokenContainer accessTokenContainer, HttpRequestHelper request,IAccessTokenFactory accessTokenFactory=null)
         {
             _accessTokenContainer = accessTokenContainer;
             _accessTokenFactory = accessTokenFactory;

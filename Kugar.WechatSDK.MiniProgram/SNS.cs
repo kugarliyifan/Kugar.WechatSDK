@@ -48,14 +48,13 @@ namespace Kugar.WechatSDK.MiniProgram
     /// <summary>
     /// 账号相关功能
     /// </summary>
-    public class SNS : ISNS
+    public class SNS :BaseService, ISNS
     {
-        private CommonApi _api = null;
+        //private ICommonApi _api = null;
         private IWechatGateway _gateway = null;
 
-        public SNS(CommonApi api, IWechatGateway gateway)
+        public SNS(ICommonApi api, IWechatGateway gateway):base(api)
         {
-            _api = api;
             _gateway = gateway;
         }
 
@@ -70,12 +69,20 @@ namespace Kugar.WechatSDK.MiniProgram
         {
             var appSerect = _gateway.Get(appID);
 
-            var ret = await _api.Get(appID,
-                $"/sns/jscode2session?appid={appID}&secret={appSerect}&js_code={jsCode}&grant_type=authorization_code");
+            var ret = await CommonApi.Get(appID,
+                $"/sns/jscode2session?appid={appID}&secret={appSerect.AppSerect}&js_code={jsCode}&grant_type=authorization_code");
 
-            return ret.Cast(
-                (ret.ReturnData.GetString("openid"), ret.ReturnData.GetString("session_key"),
-                    ret.ReturnData.GetString("unionid")), default);
+            if (ret.IsSuccess)
+            {
+                return ret.Cast(
+                    (ret.ReturnData.GetString("openid"), ret.ReturnData.GetString("session_key"),
+                        ret.ReturnData.GetString("unionid")), default);
+            }
+            else
+            {
+                return ret.Cast<(string openid, string session_key, string unionid)>(default);
+            }
+            
 
         }
 

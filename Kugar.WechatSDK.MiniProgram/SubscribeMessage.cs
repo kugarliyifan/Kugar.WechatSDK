@@ -97,7 +97,7 @@ namespace Kugar.WechatSDK.MiniProgram
     /// </summary>
     public class SubscribeMessage:BaseService, ISubscribeMessage
     {
-        public SubscribeMessage(CommonApi api) : base(api)
+        public SubscribeMessage(ICommonApi api) : base(api)
         {
         }
 

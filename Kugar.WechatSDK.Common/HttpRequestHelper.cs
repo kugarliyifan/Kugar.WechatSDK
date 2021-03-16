@@ -94,7 +94,7 @@ namespace Kugar.WechatSDK.Common
             HttpResponseMessage response;
             if (httpMethod== HttpMethod.Get)
             {
-                response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,_option.Value.BaseApiHost + url));
+                response = await _clientFactory.CreateClient("MPApi").SendAsync(new HttpRequestMessage(httpMethod,url));
             }
             else
             {

@@ -69,7 +69,7 @@ namespace Kugar.WechatSDK.MiniProgram
     /// </summary>
     public class QrCode:BaseService, IQrCode
     {
-        public QrCode(CommonApi api):base(api)
+        public QrCode(ICommonApi api):base(api)
         {
         }
 

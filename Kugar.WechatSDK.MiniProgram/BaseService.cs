@@ -7,11 +7,11 @@ namespace Kugar.WechatSDK.MiniProgram
 {
     public abstract class BaseService
     {
-        protected BaseService(CommonApi api)
+        protected BaseService(ICommonApi api)
         {
             CommonApi = api;
         }
 
-        protected CommonApi CommonApi { get; }
+        protected ICommonApi CommonApi { get; }
     }
 }

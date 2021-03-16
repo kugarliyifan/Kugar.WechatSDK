@@ -10,7 +10,7 @@ namespace Kugar.WechatSDK.MiniProgram
     public class UniformMessage:BaseService
     {
         
-        public UniformMessage(CommonApi api):base(api)
+        public UniformMessage(ICommonApi api):base(api)
         {
         }
 
