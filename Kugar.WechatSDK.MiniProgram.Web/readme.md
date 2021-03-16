@@ -12,9 +12,9 @@ public void ConfigureServices(IServiceCollection services)
 {
 	services.AddMemoryCache();
 	services.AddWechatGateway()
-			.AddWechatMP(new[]
+			.AddWechatMiniProgram(new[]
 			{
-				new MPConfiguration()
+				new MiniProgramConfiguration()
 				{
 					AppID = CustomConfigManager.Default["Wechat:AppID"],
 					AppSerect = CustomConfigManager.Default["Wechat:AppSerect"],

@@ -18,7 +18,7 @@ namespace Kugar.WechatSDK
         /// <summary>
         /// 账号相关功能
         /// </summary>
-        ISNS Sns { get; }
+        ISNS OAuth { get; }
 
         /// <summary>
         /// UrlScheme模块功能,用于H5跳入小程序
@@ -40,7 +40,7 @@ namespace Kugar.WechatSDK
         {
             SubscribeMessage = subscribe;
             QrCode = qrcode;
-            Sns = sns;
+            OAuth = sns;
             UrlScheme = urlScheme;
         }
 
@@ -57,7 +57,7 @@ namespace Kugar.WechatSDK
         /// <summary>
         /// 账号相关功能
         /// </summary>
-        public ISNS Sns { get; }
+        public ISNS OAuth { get; }
 
         /// <summary>
         /// UrlScheme模块功能,用于H5跳入小程序

@@ -10,7 +10,7 @@ namespace Kugar.WechatSDK.MiniProgram
     /// </summary>
     public class MiniProgramConfiguration:WechatConfigurationBase
     {
-        public MiniProgramConfiguration(string appID,string appSerect,string token,bool isManagerAccessToken=true)
+        public MiniProgramConfiguration(string appID,string appSerect,string token, bool isManagerAccessToken=true)
         {
             this.AppID = appID;
             this.AppSerect = appSerect;
