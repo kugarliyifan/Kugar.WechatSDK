@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -30,7 +31,7 @@ namespace Kugar.WechatSDK.Common
             return json;
         }
 
-        public async Task<(string contentType,Stream data)> GetRaw(string url)
+        public async Task<(string contentType,IReadOnlyList<byte> data)> GetRaw(string url)
         {
             var raw = await SendApiRaw(url, HttpMethod.Get);
 
@@ -45,7 +46,7 @@ namespace Kugar.WechatSDK.Common
             return json;
         }
 
-        public async Task<(string contentType,Stream data)> PostRaw(string url, JObject args)
+        public async Task<(string contentType,IReadOnlyList<byte> data)> PostRaw(string url, JObject args)
         {
             var stream = await SendApiRaw(url, HttpMethod.Post, args);
 
@@ -84,8 +85,6 @@ namespace Kugar.WechatSDK.Common
 
         public async Task<JObject> SendApiJson(string url, HttpMethod httpMethod, JObject args=null)
         {
-            Debugger.Break();
-
             if (!url.StartsWith("http",StringComparison.CurrentCultureIgnoreCase))
             {
                 url = _option.Value.BaseApiHost + url;
@@ -121,7 +120,7 @@ namespace Kugar.WechatSDK.Common
             
         }
 
-        public async Task<(string contentType,Stream data)> SendApiRaw(string url, HttpMethod httpMethod, JObject args=null)
+        public async Task<(string contentType,IReadOnlyList<byte> data)> SendApiRaw(string url, HttpMethod httpMethod, JObject args=null)
         {
             HttpResponseMessage response;
 
@@ -151,7 +150,19 @@ namespace Kugar.WechatSDK.Common
                         }
                     }
 
-                    return (contentType,await response.Content.ReadAsStreamAsync());
+                    if (contentType=="")
+                    {
+                        if (response.Content.Headers.TryGetValues("content-type", out var v1))
+                        {
+                            if (v1.HasData())
+                            {
+                                contentType = v1.JoinToString(',');
+                            }
+                        }
+                    }
+                    
+
+                    return (contentType,await response.Content.ReadAsByteArrayAsync());
                 
                 }
                 else

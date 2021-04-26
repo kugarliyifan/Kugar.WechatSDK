@@ -31,7 +31,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        Task<ResultReturn<Stream>> GetTemporaryMedia(string appId, string mediaId);
+        Task<ResultReturn<IReadOnlyList<byte>>> GetTemporaryMedia(string appId, string mediaId);
 
         /// <summary>
         /// 上传永久图文素材,返回media_id
@@ -83,7 +83,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appID"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        Task<ResultReturn<Stream>> GetVideoStream(string appID, string mediaId);
+        Task<ResultReturn<IReadOnlyList<byte>>> GetVideoStream(string appID, string mediaId);
 
         /// <summary>
         /// 获取永久性视频的信息
@@ -93,7 +93,7 @@ namespace Kugar.WechatSDK.MP
         /// <returns></returns>
         Task<ResultReturn<GetVideoInfo_Result>> GetVideoInfo(string appId, string mediaId);
 
-        Task<ResultReturn<Stream>> GetImageStream(
+        Task<ResultReturn<IReadOnlyList<byte>>> GetImageStream(
             string appId, 
             string mediaId);
 
@@ -103,7 +103,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        Task<ResultReturn<Stream>> GetVoiceStream(
+        Task<ResultReturn<IReadOnlyList<byte>>> GetVoiceStream(
             string appId, 
             string mediaId);
 
@@ -212,11 +212,11 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        public async Task<ResultReturn<Stream>> GetTemporaryMedia(string appId, string mediaId)
+        public async Task<ResultReturn<IReadOnlyList<byte>>> GetTemporaryMedia(string appId, string mediaId)
         {
             var stream= await CommonApi.GetRaw(appId,$"/cgi-bin/media/get/jssdk?access_token=ACCESS_TOKEN&media_id={mediaId}");
 
-            return new SuccessResultReturn<Stream>(stream.data);
+            return new SuccessResultReturn<IReadOnlyList<byte>>(stream.data);
         }
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appID"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        public async Task<ResultReturn<Stream>> GetVideoStream(string appID, string mediaId)
+        public async Task<ResultReturn<IReadOnlyList<byte>>> GetVideoStream(string appID, string mediaId)
         {
             var mediaInifo = await CommonApi.Post(appID,
                 "/cgi-bin/material/get_material?access_token=ACCESS_TOKEN",
@@ -377,11 +377,11 @@ namespace Kugar.WechatSDK.MP
 
                 var stream= await CommonApi.GetRaw(appID, downloadUrl);
 
-                return new SuccessResultReturn<Stream>(stream.data);
+                return new SuccessResultReturn<IReadOnlyList<byte>>(stream.data);
             }
             else
             {
-                return mediaInifo.Cast((Stream)null);
+                return mediaInifo.Cast((IReadOnlyList<byte>)null);
             }
         }
 
@@ -418,7 +418,7 @@ namespace Kugar.WechatSDK.MP
             }
         }
 
-        public async Task<ResultReturn<Stream>> GetImageStream(
+        public async Task<ResultReturn<IReadOnlyList<byte>>> GetImageStream(
             string appId, 
             string mediaId)
         {
@@ -429,7 +429,7 @@ namespace Kugar.WechatSDK.MP
                     ["media_id"]=mediaId
                 });
 
-            return new SuccessResultReturn<Stream>(stream.data);
+            return new SuccessResultReturn<IReadOnlyList<byte>>(stream.data);
         }
 
         /// <summary>
@@ -438,7 +438,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="mediaId"></param>
         /// <returns></returns>
-        public async Task<ResultReturn<Stream>> GetVoiceStream(
+        public async Task<ResultReturn<IReadOnlyList<byte>>> GetVoiceStream(
             string appId, 
             string mediaId)
         {
@@ -449,7 +449,7 @@ namespace Kugar.WechatSDK.MP
                     ["media_id"]=mediaId
                 });
 
-            return new SuccessResultReturn<Stream>(stream.data);
+            return new SuccessResultReturn<IReadOnlyList<byte>>(stream.data);
         }
 
         /// <summary>

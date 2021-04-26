@@ -70,7 +70,7 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="ticket"></param>
         /// <returns></returns>
-        Task<ResultReturn<Stream>> DownloadQrCode(string appId, string ticket);
+        Task<ResultReturn<IReadOnlyList<byte>>> DownloadQrCode(string appId, string ticket);
 
         /// <summary>
         /// 生成前端使用的二维码显示的链接,使用ticket
@@ -278,18 +278,18 @@ namespace Kugar.WechatSDK.MP
         /// <param name="appId"></param>
         /// <param name="ticket"></param>
         /// <returns></returns>
-        public async Task<ResultReturn<Stream>> DownloadQrCode(string appId, string ticket)
+        public async Task<ResultReturn<IReadOnlyList<byte>>> DownloadQrCode(string appId, string ticket)
         {
             try
             {
                 var stream = await CommonApi.GetRaw(appId,
                     $"http://{_option.CurrentValue.MPApiHost}/cgi-bin/showqrcode?ticket={WebUtility.UrlEncode(ticket) }");
 
-                return new SuccessResultReturn<Stream>(stream.data);
+                return new SuccessResultReturn<IReadOnlyList<byte>>(stream.data);
             }
             catch (WebException e)
             {
-                return new FailResultReturn<Stream>(e);
+                return new FailResultReturn<IReadOnlyList<byte>>(e);
             }
             
         }

@@ -19,6 +19,26 @@ namespace Kugar.WechatSDK.MiniProgram
     public interface ISNS
     {
         /// <summary>
+        /// 用户支付完成后，获取该用户的 UnionId，无需用户授权。注意：调用前需要用户完成支付，且在支付后的五分钟内有效。
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="openId">用户OpenId</param>
+        /// <param name="transaction_id">支付单的交易单号</param>
+        /// <returns></returns>
+        Task<ResultReturn<string>> GetPaidUnionId(string appId, string openId, string transaction_id);
+
+        /// <summary>
+        /// 用户支付完成后，获取该用户的 UnionId，无需用户授权。注意：调用前需要用户完成支付，且在支付后的五分钟内有效。
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="openId">用户OpenId</param>
+        /// <param name="mch_id">商户ID</param>
+        /// <param name="out_trade_no">用户自定义订单号</param>
+        /// <returns></returns>
+        Task<ResultReturn<string>> GetPaidUnionId(string appId, string openId,
+            string mch_id, string out_trade_no);
+
+        /// <summary>
         /// 小程序wx.login返回的jsCode换取openid
         /// </summary>
         /// <param name="appID"></param>
@@ -58,6 +78,55 @@ namespace Kugar.WechatSDK.MiniProgram
             _gateway = gateway;
         }
 
+        /// <summary>
+        /// 用户支付完成后，获取该用户的 UnionId，无需用户授权。注意：调用前需要用户完成支付，且在支付后的五分钟内有效。
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="openId">用户OpenId</param>
+        /// <param name="transaction_id">支付单的交易单号</param>
+        /// <returns></returns>
+        public async Task<ResultReturn<string>> GetPaidUnionId(string appId, string openId, string transaction_id )
+        {
+            var ret = await CommonApi.Get(appId,
+                $"/wxa/getpaidunionid?access_token=ACCESS_TOKEN&openid={openId}&transaction_id={transaction_id}");
+
+            if (ret.IsSuccess)
+            {
+                var uid = ret.ReturnData.GetString("unionid");
+
+                return new SuccessResultReturn<string>(uid);
+            }
+            else
+            {
+                return ret.Cast<string>(default);
+            }
+        }
+
+        /// <summary>
+        /// 用户支付完成后，获取该用户的 UnionId，无需用户授权。注意：调用前需要用户完成支付，且在支付后的五分钟内有效。
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="openId">用户OpenId</param>
+        /// <param name="mch_id">商户ID</param>
+        /// <param name="out_trade_no">用户自定义订单号</param>
+        /// <returns></returns>
+        public async Task<ResultReturn<string>> GetPaidUnionId(string appId, string openId, 
+            string mch_id, string out_trade_no)
+        {
+            var ret = await CommonApi.Get(appId,
+                $"/wxa/getpaidunionid?access_token=ACCESS_TOKEN&openid={openId}&mch_id={mch_id}&out_trade_no={out_trade_no}");
+
+            if (ret.IsSuccess)
+            {
+                var uid = ret.ReturnData.GetString("unionid");
+
+                return new SuccessResultReturn<string>(uid);
+            }
+            else
+            {
+                return ret.Cast<string>(default);
+            }
+        }
 
         /// <summary>
         /// 小程序wx.login返回的jsCode换取openid

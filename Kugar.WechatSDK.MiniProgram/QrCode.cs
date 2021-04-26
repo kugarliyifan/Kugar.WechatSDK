@@ -24,7 +24,7 @@ namespace Kugar.WechatSDK.MiniProgram
         /// <param name="path">跳转路径</param>
         /// <param name="width">二维码尺寸:280-1280px之间的尺寸</param>
         /// <returns></returns>
-        Task<ResultReturn<Stream>> CreateLimitQrCode(string appID,string path,int width);
+        Task<ResultReturn<IReadOnlyList<byte>>> CreateLimitQrCode(string appID,string path,int width);
 
         /// <summary>
         /// 获取小程序码，适用于需要的码数量较少的业务场景。通过该接口生成的小程序码，永久有效，有数量限制
@@ -36,7 +36,7 @@ namespace Kugar.WechatSDK.MiniProgram
         /// <param name="line_color">auto_color 为 false 时生效，使用 rgb 设置颜色</param>
         /// <param name="is_hyaline">是否需要透明底色，为 true 时，生成透明底色的小程序码</param>
         /// <returns></returns>
-        Task<ResultReturn<Stream>> CreateLimitMiniProgramCode(string appID, 
+        Task<ResultReturn<IReadOnlyList<byte>>> CreateLimitMiniProgramCode(string appID, 
             string path, 
             int width,
             bool auto_color=true,
@@ -55,7 +55,7 @@ namespace Kugar.WechatSDK.MiniProgram
         /// <param name="line_color">auto_color 为 false 时生效，使用 rgb 设置颜色</param>
         /// <param name="is_hyaline">是否需要透明底色，为 true 时，生成透明底色的小程序码</param>
         /// <returns></returns>
-        Task<ResultReturn<Stream>> CreateUnlimitMiniProgramCode(string appID, 
+        Task<ResultReturn<IReadOnlyList<byte>>> CreateUnlimitMiniProgramCode(string appID, 
             string scene,
             string page, 
             int width,
@@ -80,7 +80,7 @@ namespace Kugar.WechatSDK.MiniProgram
         /// <param name="path">跳转路径</param>
         /// <param name="width">二维码尺寸:280-1280px之间的尺寸</param>
         /// <returns></returns>
-        public async Task<ResultReturn<Stream>> CreateLimitQrCode(string appID,string path,int width)
+        public async Task<ResultReturn<IReadOnlyList<byte>>> CreateLimitQrCode(string appID,string path,int width)
         {
             if (width<280)
             {
@@ -108,17 +108,17 @@ namespace Kugar.WechatSDK.MiniProgram
                 ["width"] = width
             });
 
-            if (data.data.Length>100)
+            if (!data.contentType.Contains("json"))
             {
-                return new SuccessResultReturn<Stream>(data.data);
+                return new SuccessResultReturn<IReadOnlyList<byte>>(data.data);
             }
             else
             {
-                var jsonStr = data.data.ReadToEnd(Encoding.UTF8);
+                var jsonStr = Encoding.UTF8.GetString(data.data.ToArrayEx());// data.data.ReadToEnd(Encoding.UTF8);
 
                 var json = JObject.Parse(jsonStr);
 
-                return new FailResultReturn<Stream>(json.GetString("errmsg"), json.GetInt("errcode"));
+                return new FailResultReturn<IReadOnlyList<byte>>(json.GetString("errmsg"), json.GetInt("errcode"));
             }
         }
 
@@ -132,7 +132,7 @@ namespace Kugar.WechatSDK.MiniProgram
         /// <param name="line_color">auto_color 为 false 时生效，使用 rgb 设置颜色</param>
         /// <param name="is_hyaline">是否需要透明底色，为 true 时，生成透明底色的小程序码</param>
         /// <returns></returns>
-        public async Task<ResultReturn<Stream>> CreateLimitMiniProgramCode(string appID, 
+        public async Task<ResultReturn<IReadOnlyList<byte>>> CreateLimitMiniProgramCode(string appID, 
             string path, 
             int width,
             bool auto_color=true,
@@ -174,22 +174,22 @@ namespace Kugar.WechatSDK.MiniProgram
                 ["is_hyaline"] = is_hyaline
             });
 
-            if (data.data.Length>100)
+            if (!data.contentType.Contains("json"))
             {
-                return new SuccessResultReturn<Stream>(data.data);
+                return new SuccessResultReturn<IReadOnlyList<byte>>(data.data);
             }
             else
             {
-                var jsonStr = data.data.ReadToEnd(Encoding.UTF8);
+                var jsonStr =Encoding.UTF8.GetString((byte[])data.data);
 
                 var json = JObject.Parse(jsonStr);
 
-                return new FailResultReturn<Stream>(json.GetString("errmsg"), json.GetInt("errcode"));
+                return new FailResultReturn<IReadOnlyList<byte>>(json.GetString("errmsg"), json.GetInt("errcode"));
             }
         }
 
         /// <summary>
-        /// 创建不限定数量的小程序码
+        /// 获取小程序码，适用于需要的码数量极多的业务场景。通过该接口生成的小程序码，永久有效，数量暂无限制 
         /// </summary>
         /// <param name="appID"></param>
         /// <param name="scene">扫码后跳转到小程序页面时,传递的参数,最大不能超过32个字符</param>
@@ -199,7 +199,7 @@ namespace Kugar.WechatSDK.MiniProgram
         /// <param name="line_color">auto_color 为 false 时生效，使用 rgb 设置颜色</param>
         /// <param name="is_hyaline">是否需要透明底色，为 true 时，生成透明底色的小程序码</param>
         /// <returns></returns>
-        public async Task<ResultReturn<Stream>> CreateUnlimitMiniProgramCode(string appID, 
+        public async Task<ResultReturn<IReadOnlyList<byte>>> CreateUnlimitMiniProgramCode(string appID, 
             string scene,
             string page, 
             int width,
@@ -227,7 +227,7 @@ namespace Kugar.WechatSDK.MiniProgram
                 page = page.Substring(1);
             }
 
-            var data=await CommonApi.PostRaw(appID, "/wxa/getwxacode?access_token=ACCESS_TOKEN", new JObject()
+            var data=await CommonApi.PostRaw(appID, "/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN", new JObject()
             {
                 ["scene"]=scene,
                 ["page"] = page,
@@ -242,17 +242,17 @@ namespace Kugar.WechatSDK.MiniProgram
                 ["is_hyaline"] = is_hyaline
             });
 
-            if (data.data.Length>100)
+            if (!data.contentType.Contains("json"))
             {
-                return new SuccessResultReturn<Stream>(data.data);
+                return new SuccessResultReturn<IReadOnlyList<byte>>(data.data);
             }
             else
             {
-                var jsonStr = data.data.ReadToEnd(Encoding.UTF8);
+                var jsonStr = Encoding.UTF8.GetString(data.data.ToArrayEx());
 
                 var json = JObject.Parse(jsonStr);
 
-                return new FailResultReturn<Stream>(json.GetString("errmsg"), json.GetInt("errcode"));
+                return new FailResultReturn<IReadOnlyList<byte>>(json.GetString("errmsg"), json.GetInt("errcode"));
             }
         }
     }

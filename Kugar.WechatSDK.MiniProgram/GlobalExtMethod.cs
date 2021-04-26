@@ -9,12 +9,16 @@ namespace Kugar.WechatSDK.MiniProgram
 {
     public static class GlobalExtMethod
     {
-        public static IServiceCollection AddWechatMiniProgram(this IServiceCollection services,params MiniProgramConfiguration[] configurations)
+        public static IServiceCollection AddWechatMiniProgram(this IServiceCollection services,
+            
+            params MiniProgramConfiguration[] configurations)
         {
             services.AddSingleton<IUrlScheme, UrlScheme>();
             services.AddSingleton<ISNS, SNS>();
             services.AddSingleton<IQrCode, QrCode>();
             services.AddSingleton<ISubscribeMessage, SubscribeMessage>();
+            services.AddSingleton<IContentSecurityService, ContentSecurityService>();
+
             services.AddSingleton<IMiniProgramApi, MiniProgramApi>(x =>
             {
                 var gateWay = (IWechatGateway) x.GetService(typeof(IWechatGateway));
@@ -33,7 +37,8 @@ namespace Kugar.WechatSDK.MiniProgram
                 return new MiniProgramApi((ISubscribeMessage) x.GetService(typeof(ISubscribeMessage)),
                     (IQrCode) x.GetService(typeof(IQrCode)),
                     (ISNS) x.GetService(typeof(ISNS)),
-                    (IUrlScheme) x.GetService(typeof(IUrlScheme))
+                    (IUrlScheme) x.GetService(typeof(IUrlScheme)),
+                    (IContentSecurityService)x.GetService(typeof(IContentSecurityService))
                 );
             });
             

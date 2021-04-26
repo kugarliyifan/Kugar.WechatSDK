@@ -11,6 +11,7 @@ using Kugar.Core.Log;
 using Kugar.WechatSDK.Common;
 using Kugar.WechatSDK.Common.Gateway;
 using Kugar.WechatSDK.MiniProgram;
+using Kugar.WechatSDK.MiniProgram.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -80,9 +81,45 @@ namespace Kugar.WechatSDK.MP.Web
             [FromQuery] string nonce,
             [FromQuery] string echostr,
             [FromRoute] string appID = "",
-            [FromServices] ILoggerFactory logger=null
+            [FromServices] ILoggerFactory logger=null,
+            [FromServices]IMiniProgramMessageExecutor executor=null
             )
         {
+            Request.EnableBuffering();
+
+
+            var jsonStr = Request.Body.ReadToEnd();
+
+            if (Request.ContentType.Contains("json"))
+            {
+                var json = JObject.Parse(jsonStr);
+
+                var eventType = json.GetString("Event");
+
+                MiniProgramMsgBase msg = null;
+
+                switch (eventType)
+                {
+                    case "wxa_media_check":
+                    {
+                        msg = new MiniProgramEvent_MediaCheck();
+                        break;
+                    }
+                }
+
+                if (msg==null)
+                {
+                    return NotFound();
+                }
+
+                msg.FromJson(json);
+
+                if (executor != null)
+                {
+                    await executor.Execute(msg);
+                }
+            }
+
             return Content("");
 
             //if (gateway == null)

@@ -17,13 +17,13 @@ namespace Kugar.WechatSDK.Common
 
         Task<ResultReturn<JObject>> Get(string appID, string url);
 
-        Task<(string contentType, Stream data)> GetRaw(string appId, string url);
+        Task<(string contentType, IReadOnlyList<byte> data)> GetRaw(string appId, string url);
 
         Task<ResultReturn<TResponseData>> Post<TResponseData>(string appID, string url,JObject args);
 
         Task<ResultReturn<JObject>> Post(string appID, string url,JObject args);
 
-        Task<(string contentType, Stream data)> PostRaw(string appID, string url, JObject args);
+        Task<(string contentType, IReadOnlyList<byte> data)> PostRaw(string appID, string url, JObject args);
 
         Task<ResultReturn<JObject>> PostByForm(string appID, string url,params (string key, object data)[] dic);
 
@@ -109,7 +109,7 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
-        public async Task<(string contentType, Stream data)> GetRaw(string appId, string url)
+        public async Task<(string contentType, IReadOnlyList<byte> data)> GetRaw(string appId, string url)
         {
             var newUrl = await replaceUrlAccessToken(appId, url);
             
@@ -210,7 +210,7 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
-        public async Task<(string contentType, Stream data)> PostRaw(string appID, string url, JObject args)
+        public async Task<(string contentType, IReadOnlyList<byte> data)> PostRaw(string appID, string url, JObject args)
         {
             var newUrl = await replaceUrlAccessToken(appID, url);
             

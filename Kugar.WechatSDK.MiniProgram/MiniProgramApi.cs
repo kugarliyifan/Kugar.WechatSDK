@@ -24,6 +24,8 @@ namespace Kugar.WechatSDK
         /// UrlScheme模块功能,用于H5跳入小程序
         /// </summary>
         IUrlScheme UrlScheme { get; }
+
+        IContentSecurityService ContentSecurity { get; }
     }
 
     /// <summary>
@@ -35,13 +37,15 @@ namespace Kugar.WechatSDK
             ISubscribeMessage subscribe,
             IQrCode qrcode,
             ISNS sns,
-            IUrlScheme urlScheme
+            IUrlScheme urlScheme,
+            IContentSecurityService contentSecurity
             )
         {
             SubscribeMessage = subscribe;
             QrCode = qrcode;
             OAuth = sns;
             UrlScheme = urlScheme;
+            ContentSecurity = contentSecurity;
         }
 
         /// <summary>
@@ -63,6 +67,8 @@ namespace Kugar.WechatSDK
         /// UrlScheme模块功能,用于H5跳入小程序
         /// </summary>
         public IUrlScheme UrlScheme { get; }
+
+        public IContentSecurityService ContentSecurity { get; }
     }
 
 }

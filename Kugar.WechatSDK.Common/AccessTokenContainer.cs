@@ -35,7 +35,7 @@ namespace Kugar.WechatSDK.Common
         {
             return await _accessTokenCache.GetOrCreateAsync(appId,async x =>
             {
-                Debugger.Break();
+                //Debugger.Break();
                 if (_config.TryGetValue(appId,out var tmp))
                 {
                     var data=await _request.SendApiJson(
