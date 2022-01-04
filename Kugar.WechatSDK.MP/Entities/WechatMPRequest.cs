@@ -80,6 +80,9 @@ namespace Kugar.WechatSDK.MP.Entities
         /// </summary>
         public string BizMsgMenuId { set; get; }
 
+        /// <summary>
+        /// 消息类型
+        /// </summary>
         public override WechatMPRequestMsgType MsgType => WechatMPRequestMsgType.Text;
         protected override void LoadFromXmlInternal(XmlNode xmlNode)
         {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
@@ -7,10 +7,11 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<OutputPath>..\bin\</OutputPath>
+		<Version>1.0.0.15</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Kugar.Core.Web.NetCore" Version="1.0.174" />
+		<PackageReference Include="Kugar.Core.Web.NetCore" Version="1.0.192" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,16 +28,19 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
-		<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.2" />
-	</ItemGroup>
-
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson">
 			<Version>3.1.10</Version>
 		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.10" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson">
+			<Version>5.0.1</Version>
+		</PackageReference>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.10" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
 	<ItemGroup>
