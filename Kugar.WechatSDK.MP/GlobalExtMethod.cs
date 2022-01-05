@@ -18,7 +18,8 @@ namespace Kugar.WechatSDK.MP
             params MPConfiguration[] configurations)
         {
             services.AddSingleton(typeof(OptionsManager<>));
-            services.AddScoped<IHttpContextAccessor>();
+            //services.AddScoped<IHttpContextAccessor>();
+            services.AddHttpContextAccessor();
             //services.AddOptions<MPRequestHostOption>().Configure(x => x.MPApiHost = mpApiHost);
             services.AddSingleton<IOAuthService, OAuthService>();
             services.AddSingleton<IJsTicketContainer, JsTicketContainer>();

@@ -7,6 +7,8 @@ using Kugar.WechatSDK.MP.Enums;
 using Kugar.WechatSDK.MP.Results;
 using Microsoft.AspNetCore.Http;
 
+using RedirectUrl=System.String;
+
 namespace Kugar.WechatSDK.MP.Web
 {
     public interface IWechatJWTAuthenticateService
@@ -32,14 +34,16 @@ namespace Kugar.WechatSDK.MP.Web
         /// <param name="accesstoken">当前用户的accesstoken</param>
         /// <param name="userinfo">如果使用userinfo的方式,则为用户信息,,base方式为null</param>
         /// <param name="mpapi">注入的IWechatMPApi</param>
-        /// <returns></returns>
-        Task OnOAuthCompleted(HttpContext context,
+        /// <param name="backUrl">原回跳地址</param>
+        /// <returns>如需特殊情况下的跳转,则返回跳转地址,如只需按原地址跳转,返回空字符串</returns>
+        Task<RedirectUrl> OnOAuthCompleted(HttpContext context,
             string appid,
             string openID,
             string refresh_token,
             string accesstoken,
             WxUserInfo_Result userinfo,
-            IWechatMPApi mpapi
+            IWechatMPApi mpapi,
+            string backUrl
         );
     }
 }

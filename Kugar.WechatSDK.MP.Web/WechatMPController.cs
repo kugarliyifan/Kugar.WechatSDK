@@ -87,15 +87,21 @@ namespace Kugar.WechatSDK.MP.Web
             {
                 throw new ArgumentNullException("loginService为空,请使用services.RegisterMPJWTLoginService注册登录服务");
             }
-
-            await loginService?.OnOAuthCompleted(this.HttpContext,
+            
+            var t1=await loginService?.OnOAuthCompleted(this.HttpContext,
                 appID,
                 ret1.ReturnData.OpenId,
                 ret1.ReturnData.RefreshToken,
                 ret1.ReturnData.AccessToken,
                 wxUserInfo,
-                mp
+                mp,
+                backUrl:redirectUrl
             );
+
+            if (!string.IsNullOrWhiteSpace(t1))
+            {
+                redirectUrl = t1;
+            }
         
             ResultReturn<string> ret;
             
