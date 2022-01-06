@@ -9,7 +9,6 @@
 		<Description>用于微信公众号Web端,处理登录验证,登录后回调的功能</Description>
 		<PackageReleaseNotes>IWechatJWTAuthenticateService 增加一个OnBeforeLoginTempData 用于存储登录授权过程中,需要传给OnOAuthCompleted的临时数据</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/kugarliyifan/Kugar.WechatSDK</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/kugarliyifan/Kugar.WechatSDK</PackageProjectUrl>
 
 	</PropertyGroup>
 

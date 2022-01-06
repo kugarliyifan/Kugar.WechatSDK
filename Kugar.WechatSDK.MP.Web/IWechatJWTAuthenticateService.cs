@@ -6,7 +6,7 @@ using Kugar.Core.BaseStruct;
 using Kugar.WechatSDK.MP.Enums;
 using Kugar.WechatSDK.MP.Results;
 using Microsoft.AspNetCore.Http;
-
+using Newtonsoft.Json.Linq;
 using RedirectUrl=System.String;
 
 namespace Kugar.WechatSDK.MP.Web
@@ -43,7 +43,21 @@ namespace Kugar.WechatSDK.MP.Web
             string accesstoken,
             WxUserInfo_Result userinfo,
             IWechatMPApi mpapi,
-            string backUrl
+            string backUrl,
+            JObject tempData
         );
+
+        /// <summary>
+        /// 用于登录的时候,构造登录函数的时候,将一些需要传递给OnOAuthCompleted的数据缓存起来
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="appId"></param>
+        /// <param name="loginUrl"></param>
+        /// <param name="mpapi"></param>
+        /// <returns></returns>
+        Task<JObject> OnBeforeLoginTempData(HttpContext context, string appId, string loginUrl, IWechatMPApi mpapi)
+        {
+            return Task.FromResult((JObject)null);
+        }
     }
 }

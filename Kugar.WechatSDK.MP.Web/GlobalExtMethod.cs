@@ -229,8 +229,7 @@ namespace Kugar.WechatSDK.MP.Web
                         }
 
                         var cache = (IMemoryCache) context.HttpContext.RequestServices.GetService(typeof(IMemoryCache));
-
-                        Debugger.Break();
+                         
 
                         WechatMPAuthorizeAttribute attr = null;
 #if NETCOREAPP2_1
@@ -248,6 +247,10 @@ namespace Kugar.WechatSDK.MP.Web
 
                         loginUrl = mp.OAuth.BuildOAuthUrl(appID, loginUrl, attr.OAuthType,state);
 
+                        var loginService= (IWechatJWTAuthenticateService)context.HttpContext.RequestServices.GetService(typeof(IWechatJWTAuthenticateService));
+
+                        var tempData =await loginService.OnBeforeLoginTempData(context.HttpContext, appID, loginUrl, mp);
+                         
                         var entity=cache.GetOrCreate<string>(state, x =>
                         {
                             x.AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(5);
@@ -256,7 +259,8 @@ namespace Kugar.WechatSDK.MP.Web
                             {
                                 ["redirectUrl"] = context.Request.GetDisplayUrl(),
                                 ["oauthType"] = (int) attr.OAuthType,
-                                ["scheme"] = authName
+                                ["scheme"] = authName,
+                                ["tempData"]= tempData
                             }.ToStringEx();
 
                             x.Value = value;

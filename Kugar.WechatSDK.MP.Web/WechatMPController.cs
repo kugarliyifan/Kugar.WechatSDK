@@ -61,6 +61,7 @@ namespace Kugar.WechatSDK.MP.Web
 
             var redirectUrl = json.GetString("redirectUrl");
             var oauthType = (SnsapiType)json.GetInt("oauthType");
+            var tempData = json.GetJObject("tempData");
             //var scheme = json.GetString("scheme");
 
             var ret1 = await mp.OAuth.GetAccessToken(appID, code);
@@ -95,7 +96,8 @@ namespace Kugar.WechatSDK.MP.Web
                 ret1.ReturnData.AccessToken,
                 wxUserInfo,
                 mp,
-                backUrl:redirectUrl
+                backUrl:redirectUrl,
+                tempData
             );
 
             if (!string.IsNullOrWhiteSpace(t1))
