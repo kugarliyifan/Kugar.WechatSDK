@@ -19,6 +19,9 @@ namespace Kugar.WechatSDK.Common
         private ConcurrentDictionary<string, (string appID, string appSerect)> _config =
             new ConcurrentDictionary<string, (string appID, string appSerect)>();
 
+        private ConcurrentDictionary<string, AccessTokenFactory> _otherTokens =
+            new ConcurrentDictionary<string, AccessTokenFactory>();
+
         private IMemoryCache _accessTokenCache = null;
         private ILoggerFactory _loggerFactory = null;
         private HttpRequestHelper _request = null;
@@ -63,6 +66,10 @@ namespace Kugar.WechatSDK.Common
                         _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"调用微信获取token失败,错误代码:{errorCode.ToStringEx()}");
                         throw new Exception($"调用微信获取token失败,错误代码:{errorCode.ToStringEx()}");
                     }
+                }
+                else if (_otherTokens.TryGetValue(appId, out var factory))
+                {
+                    return await factory(appId);
                 }
                 else
                 {
@@ -134,6 +141,19 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
+        public bool Register(string appId, AccessTokenFactory factory)
+        {
+            if (_otherTokens.TryAdd(appId,factory))
+            {
+                _accessTokenCache.Remove(appId);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public bool Exists(string appId)
         {
             return _config.ContainsKey(appId);
@@ -150,4 +170,6 @@ namespace Kugar.WechatSDK.Common
         //    _accessTokenCache.Remove(appId);
         //}
     }
+
+    public delegate Task<string> AccessTokenFactory(string appId);
 }

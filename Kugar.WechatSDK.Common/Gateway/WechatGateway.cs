@@ -30,12 +30,18 @@ namespace Kugar.WechatSDK.Common.Gateway
             if (!Exists(config.AppID))
             {
                 _configs.Add(config);
-
-                //if (config.ManagerAccessToken)
-                //{
-                //    _accessTokenContainer.Register(config.AppID, config.AppSerect);
-                //}
-
+                
+                if (config.ManagerAccessToken)
+                {
+                    _accessTokenContainer.Register(config.AppID, config.AppSerect);
+                }
+                else
+                {
+                    if (config.AccessTokenFactory != null)
+                    {
+                        _accessTokenContainer.Register(config.AppID, config.AccessTokenFactory);
+                    }
+                }
                 return true;
             }
             else

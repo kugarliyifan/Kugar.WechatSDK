@@ -55,7 +55,7 @@ namespace Kugar.WechatSDK.Common
 
         public async Task<JObject> PostByForm(string url,MultipartFormDataContent formData)
         {
-            Debugger.Break();
+            //Debugger.Break();
 
             if (!url.StartsWith("http",StringComparison.CurrentCultureIgnoreCase))
             {

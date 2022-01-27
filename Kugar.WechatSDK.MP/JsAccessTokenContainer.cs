@@ -52,7 +52,7 @@ namespace Kugar.WechatSDK.MP
             {
                 if (_config.TryGetValue(appID,out var tmp))
                 {
-                    Debugger.Break();
+                    //Debugger.Break();
                     var data=await _api.Get(appID,
                         $"/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=jsapi");
 

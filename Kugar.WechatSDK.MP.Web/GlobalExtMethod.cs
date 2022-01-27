@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Kugar.Core.Exceptions;
 using Kugar.Core.ExtMethod;
 using Kugar.Core.Web;
@@ -48,11 +51,6 @@ namespace Kugar.WechatSDK.MP.Web
             string displayName,
             WechatJWTOption options)
         {
-            //if (options.LoginService == null)
-            //{
-            //    throw new ArgumentNullException("options.LoginService不能为空");
-            //}
-            
             options.AuthenticationScheme = authenticationScheme;
             
             builder.Services.AddOptions().Configure<WechatJWTOption>(authenticationScheme, opt =>
@@ -95,6 +93,10 @@ namespace Kugar.WechatSDK.MP.Web
                         context.Fail("未包含token");
                     }
 
+                    if (context.Token != null && context.Token.StartsWith("Bearer ", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        context.Token = context.Token.Substring(7);
+                    }
                 };
 
 
@@ -184,69 +186,69 @@ namespace Kugar.WechatSDK.MP.Web
 
                     var mp = (IWechatMPApi) context.HttpContext.RequestServices.GetService(typeof(IWechatMPApi));
 
-                    if (tmpOpt.OnChallenge != null)
+                    var loginUrl = tmpOpt.LoginUrl;
+
+                    var appID = "";
+
+                    var appIDFactory =
+                        (IWechatMPAppIdFactory)context.HttpContext.RequestServices.GetService(
+                            typeof(IWechatMPAppIdFactory));
+
+                    if (appIDFactory != null)
                     {
-                        await tmpOpt.OnChallenge(context,mp);
+                        appID = await appIDFactory?.GetAppId(context, mp);
+
+                        if (string.IsNullOrWhiteSpace(appID))
+                        {
+                            throw new ArgumentOutOfRangeException("appID", "AppIdFactory返回值必须为有效的appID");
+                        }
                     }
-                    
-                    if(!context.Handled)
+                    else
                     {
-                        var loginUrl = tmpOpt.LoginUrl;
+                        var gateway = (IWechatGateway)context.HttpContext.RequestServices.GetService(typeof(IWechatGateway));
 
-                        var appID ="";
+                        var config = gateway.Get<MPConfiguration>();
 
-                        var appIDFactory =
-                            (IWechatMPAppIdFactory) context.HttpContext.RequestServices.GetService(
-                                typeof(IWechatMPAppIdFactory));
+                        appID = config.AppID;
+                    }
 
-                        if (appIDFactory!=null)
-                        {
-                            appID = await appIDFactory?.GetAppId(context, mp);
+                    if (string.IsNullOrWhiteSpace(loginUrl))
+                    {
+                        loginUrl = $"/Core/MP/Callback/{authName}/{appID}";
+                    }
 
-                            if (string.IsNullOrWhiteSpace(appID))
-                            {
-                                throw new ArgumentOutOfRangeException("appID", "AppIdFactory返回值必须为有效的appID");
-                            }
-                        }
-                        else
-                        {
-                            var gateway = (IWechatGateway) context.HttpContext.RequestServices.GetService(typeof(IWechatGateway));
+                    if (!loginUrl.StartsWith("http", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        loginUrl =
+                            $"http{(context.Request.IsHttps ? "s" : "")}://{context.Request.Host.Host}{(context.Request.Host.Port == 80 ? "" : context.Request.Host.Port.ToStringEx())}{(loginUrl.StartsWith('/') ? "" : "/")}{loginUrl}";
+                    }
 
-                            var config = gateway.Get<MPConfiguration>();
+                    var state = Guid.NewGuid().ToString("N").Left(16);
 
-                            appID = config.AppID;
-                        }
-                        
-                        if (string.IsNullOrWhiteSpace(loginUrl))
-                        {
-                            loginUrl = $"/Core/MP/Callback/{authName}/{appID}";
-                        }
-
-                        if (!loginUrl.StartsWith("http",StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            loginUrl =
-                                $"http{(context.Request.IsHttps ? "s" : "")}://{context.Request.Host.Host}{(context.Request.Host.Port == 80 ? "" : context.Request.Host.Port.ToStringEx())}{(loginUrl.StartsWith('/') ? "" : "/")}{loginUrl}";
-                        }
-
-                        var cache = (IMemoryCache) context.HttpContext.RequestServices.GetService(typeof(IMemoryCache));
-                         
-
-                        WechatMPAuthorizeAttribute attr = null;
+                    WechatMPAuthorizeAttribute attr = null;
 #if NETCOREAPP2_1
                         attr = _cacheMPAuthorizeAttr.GetOrAdd(context.HttpContext.GetRequestMethodInfo(),
                             getAttrbuteFromMethod);
                         
 #endif
 #if NETCOREAPP3_1 || NET5_0
-                        var endPoint = context.HttpContext.GetEndpoint();
+                    var endPoint = context.HttpContext.GetEndpoint();
 
-                        attr = endPoint.Metadata.GetMetadata<WechatMPAuthorizeAttribute>();
+                    attr = endPoint.Metadata.GetMetadata<WechatMPAuthorizeAttribute>();
 #endif
 
-                        var state = Guid.NewGuid().ToString("N").Left(16);
 
-                        loginUrl = mp.OAuth.BuildOAuthUrl(appID, loginUrl, attr.OAuthType,state);
+                    loginUrl = mp.OAuth.BuildOAuthUrl(appID, loginUrl, attr.OAuthType, state);
 
+                    if (tmpOpt.OnChallenge != null)
+                    {
+                        await tmpOpt.OnChallenge(context,mp,loginUrl);
+                    }
+                    
+                    if(!context.Handled)
+                    {
+                        var cache = (IMemoryCache) context.HttpContext.RequestServices.GetService(typeof(IMemoryCache));
+                        
                         var loginService= (IWechatJWTAuthenticateService)context.HttpContext.RequestServices.GetService(typeof(IWechatJWTAuthenticateService));
 
                         var tempData =await loginService.OnBeforeLoginTempData(context.HttpContext, appID, loginUrl, mp);
@@ -318,7 +320,7 @@ namespace Kugar.WechatSDK.MP.Web
             return services;
         }
 
-        #if NETCOREAPP2_1
+#if NETCOREAPP2_1
 
         private static ConcurrentDictionary<MethodInfo, WechatMPAuthorizeAttribute> _cacheMPAuthorizeAttr =
             new ConcurrentDictionary<MethodInfo, WechatMPAuthorizeAttribute>();
@@ -356,24 +358,132 @@ namespace Kugar.WechatSDK.MP.Web
             }
         }
 
-        #endif
-        
+#endif
+
+        /// <summary>
+        /// 生成微信授权使用的Token,只能是配合WechatSDK使用
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="appId"></param>
+        /// <param name="openId"></param>
+        /// <param name="type"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static string BuildWechatJWtToken(this ControllerBase controller, string appId, string openId,SnsapiType type, params (string key, string value)[] values)
+        {
+            var optManager =
+                (OptionsManager<WechatJWTOption>)controller.HttpContext.RequestServices.GetService(
+                    typeof(OptionsManager<WechatJWTOption>));
+
+            //var provider = (IAuthenticationSchemeProvider)Request.HttpContext.RequestServices.GetService(typeof(IAuthenticationSchemeProvider));
+
+            //var scheme = provider.GetAllSchemesAsync().Result;
+
+            //var scheme= (string)HttpContext.Current.Items.TryGetValue("SchemeName");
+
+            var option = optManager.Get(GetCurrentSchemeName(controller));
+
+            return BuildWechatJWtToken(controller, appId, openId,type, values, option, null);
+        }
+
+        /// <summary>
+        /// 生成微信授权使用的Token,只能是配合WechatSDK使用
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="appId"></param>
+        /// <param name="openId"></param>
+        /// <param name="type"></param>
+        /// <param name="expiredSpan">过期时间,默认30天</param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static string BuildWechatJWtToken(this ControllerBase controller, string appId, string openId, SnsapiType type, TimeSpan? expiredSpan = null, params (string key, string value)[] values)
+        {
+            var optManager =
+                (OptionsManager<WechatJWTOption>)controller.HttpContext.RequestServices.GetService(
+                    typeof(OptionsManager<WechatJWTOption>));
+
+            //var provider = (IAuthenticationSchemeProvider)Request.HttpContext.RequestServices.GetService(typeof(IAuthenticationSchemeProvider));
+
+            //var scheme = provider.GetAllSchemesAsync().Result;
+
+            //var scheme= (string)HttpContext.Current.Items.TryGetValue("SchemeName");
+
+            var option = optManager.Get(GetCurrentSchemeName(controller));
+
+            return BuildWechatJWtToken(controller, appId, openId, type, values, option, expiredSpan);
+        }
+
+        /// <summary>
+        /// 生成微信授权使用的Token,只能是配合WechatSDK使用
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="appId"></param>
+        /// <param name="openId"></param>
+        /// <param name="type"></param>
+        /// <param name="values"></param>
+        /// <param name="option"></param>
+        /// <param name="expiredSpan"></param>
+        /// <returns></returns>
+        public static string BuildWechatJWtToken(this ControllerBase controller, string appId, string openId, SnsapiType type, (string key, string value)[] values,
+            WechatJWTOption option, TimeSpan? expiredSpan = null)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var authTime = DateTime.UtcNow;
+            var expiresAt = authTime.Add(expiredSpan ?? option.ExpireTimeSpan);
+
+            var lst = new List<Claim>()
+            {
+                new Claim("aud", option.Audience),
+                new Claim("iss", option.Issuer),
+                //new Claim(ClaimTypes.NameIdentifier, openId.DesEncrypt(option.TokenEncKey.Left(8))),
+                new Claim("AppID",appId),
+                new Claim("OpenID",openId),
+                new Claim("OAuthType",((int)type).ToStringEx())
+                //new Claim("k", password.DesEncrypt(option.TokenEncKey.Left(8))),
+            };
+
+            if (values.HasData())
+            {
+                foreach (var item in values)
+                {
+                    lst.Add(new Claim(item.key, item.value));
+                }
+            }
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(lst),
+                Expires = expiresAt,
+                SigningCredentials =
+                    new SigningCredentials(new SymmetricSecurityKey(option.ActualEncKey),
+                        SecurityAlgorithms.HmacSha256Signature),
+                EncryptingCredentials = new EncryptingCredentials(new SymmetricSecurityKey(option.ActualEncKey),
+                    JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return tokenString;
+        }
+
+        public static string GetCurrentSchemeName(this ControllerBase controller) =>
+            (string)controller.HttpContext.Items.TryGetValue("SchemeName");
     }
 
 
 
-    public class WechatJWTOption
+    public class WechatJWTOption :WebJWTOptionBase
     {
         private static TimeSpan _defaultExpireTimeSpan=TimeSpan.FromDays(30);
         private TimeSpan _expireTimeSpan= _defaultExpireTimeSpan;
         private static readonly string _defaultToken= "0O9W6eOHVmooTnYT";
         private static readonly byte[] _defaultActualEncKey = Encoding.UTF8.GetBytes(_defaultToken.PadRight(128, '0'));
 
-
-        /// <summary>
-        /// 构建cookie的配置
-        /// </summary>
-        public CookieBuilder Cookie { set; get; } = new CookieBuilder();
+        public WechatJWTOption()
+        {
+            this.AuthenticationScheme = "wechat";
+        }
 
         ///// <summary>
         ///// 用于登录验证的服务接口,必须是 IWechatJWTLoginService
@@ -383,17 +493,8 @@ namespace Kugar.WechatSDK.MP.Web
         /// <summary>
         /// 授权名称
         /// </summary>
-        public string AuthenticationScheme {internal set; get; } = "web";
-
-        /// <summary>
-        /// 过期时间,默认为30天
-        /// </summary>
-        public TimeSpan ExpireTimeSpan
-        {
-            set => _expireTimeSpan = value;
-            get => _expireTimeSpan;
-        }
-
+        public override string AuthenticationScheme { set; get; } = "wechat";
+        
         /// <summary>
         /// token校验成功后,触发该回调,如果回调中,需要登录失败,调用context的Fail函数,会触发OnChallenge回调
         /// </summary>
@@ -402,44 +503,21 @@ namespace Kugar.WechatSDK.MP.Web
         /// <summary>
         /// 登录失败时,触发该回调,如需要触发跳转,使用context.Response.Redirect,后使用context.HandleResponse()中止后续处理
         /// </summary>
-        public Func<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerChallengeContext,IWechatMPApi, Task> OnChallenge { set; get; }
+        public ChallengeHandler OnChallenge { set; get; } 
+        public override string Issuer { set; get; } = "wechatlogin";
+
+        public override string Audience { set; get; } = "web";
         
-
-        private string _tokenEncKey= _defaultToken;
-        private byte[] _actualEncKey= _defaultActualEncKey;
-
-
-        public string Issuer { set; get; } = "wechatlogin";
-
-        public string Audience { set; get; } = "web";
-
         /// <summary>
-        /// token加密的秘钥,默认为 0O9W6eOHVmooTnYT 的固定密码,请尽量修改该值
+        /// 登录失败时,回调的委托
         /// </summary>
-        public string TokenEncKey
-        {
-            set
-            {
-                _tokenEncKey = value;
-                _actualEncKey = Encoding.UTF8.GetBytes(value.PadRight(128, '0'));
-            }
-            get => _tokenEncKey;
-        }
-
-        /// <summary>
-        /// 登录地址,如需设置登陆跳转界面,这需要设置该跳转地址,如不设置,授权失败后,会跳转 /Core/MP/Callback/{AppID}
-        /// </summary>
-        public string LoginUrl { set; get; }
-
-        /// <summary>
-        /// 实际使用的EncKey,不直接使用
-        /// </summary>
-        public byte[] ActualEncKey
-        {
-            get => _actualEncKey;
-            private set => _actualEncKey = value;
-        }
+        /// <param name="context">登录失败的Context</param>
+        /// <param name="mp">微信公众号Api接口</param>
+        /// <param name="loginUrl">默认生成的登录地址</param>
+        /// <returns></returns>
+        public delegate Task ChallengeHandler(JwtBearerChallengeContext context, IWechatMPApi mp, string loginUrl);
     }
+     
 
     ///// <summary>
     ///// 授权返回后自动回调该函数,用于自动添加用户时可用

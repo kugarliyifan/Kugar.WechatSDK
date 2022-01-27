@@ -44,7 +44,7 @@ namespace Kugar.WechatSDK.MP.Web
             [FromServices] IWechatJWTAuthenticateService loginService=null,
             [FromQuery] string code = "", [FromQuery] string state = "")
         {
-            Debugger.Break();
+            //Debugger.Break();
             
 
             if (code == "" || state == "")

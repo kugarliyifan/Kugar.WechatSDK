@@ -76,7 +76,7 @@ namespace Kugar.WechatSDK.MP
 
     public class MenuService:MPBaseService, IMenuService
     {
-        public MenuService(CommonApi api) : base(api)
+        public MenuService(ICommonApi api) : base(api)
         {
         }
 

@@ -24,6 +24,14 @@ namespace Kugar.WechatSDK.Common
         bool Register(string appId, string appSerect);
 
         /// <summary>
+        /// 通过factory返回指定appId的Accesstoken,一般用于从第三方直接获取
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="factory"></param>
+        /// <returns></returns>
+        bool Register(string appId, AccessTokenFactory factory);
+
+        /// <summary>
         /// 是否存在指定AppId
         /// </summary>
         /// <param name="appId"></param>

@@ -52,7 +52,7 @@ namespace Kugar.WechatSDK.MP.Web
         /// </summary>
         /// <param name="context"></param>
         /// <param name="appId"></param>
-        /// <param name="loginUrl"></param>
+        /// <param name="loginUrl">默认生成的登录地址</param>
         /// <param name="mpapi"></param>
         /// <returns></returns>
         Task<JObject> OnBeforeLoginTempData(HttpContext context, string appId, string loginUrl, IWechatMPApi mpapi)

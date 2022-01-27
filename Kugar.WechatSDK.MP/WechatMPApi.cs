@@ -86,7 +86,7 @@ namespace Kugar.WechatSDK.MP
             KFManagementService kfManagement
             )
         {
-            Debugger.Break();
+            //Debugger.Break();
             Menu = menu;
             OAuth = oauth;
             JsUI = ui;
