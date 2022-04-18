@@ -3,10 +3,12 @@
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net5.0;</TargetFrameworks>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>1.0.0.27</Version>
+		<Version>1.0.0.32</Version>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<Description>用于微信公众号Web端,处理登录验证,登录后回调的功能</Description>
+		<Description>用于微信公众号Web端,处理登录验证,登录后回调的功能
+
+1.修复授权后获取用户OpenId的问题</Description>
 		<PackageReleaseNotes>IWechatJWTAuthenticateService 增加一个OnBeforeLoginTempData 用于存储登录授权过程中,需要传给OnOAuthCompleted的临时数据</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/kugarliyifan/Kugar.WechatSDK</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/kugarliyifan/Kugar.WechatSDK</PackageProjectUrl>

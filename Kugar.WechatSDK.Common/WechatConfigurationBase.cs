@@ -20,6 +20,8 @@ namespace Kugar.WechatSDK.Common
         /// </summary>
         public AccessTokenFactory AccessTokenFactory { set; get; }
 
+
+
         public abstract bool Validate();
     }
 

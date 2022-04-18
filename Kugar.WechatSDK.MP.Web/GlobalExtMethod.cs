@@ -154,7 +154,8 @@ namespace Kugar.WechatSDK.MP.Web
                         //{
                         //    context.Principal.AddClaim("UserID", ret.ReturnData);
                         //}
-
+                        //Debugger.Break();
+                        context.Principal.AddClaim(ClaimTypes.NameIdentifier, ret.ReturnData);
                         //context.Principal.AddClaim("OpenID", openID);
                         //context.Principal.AddClaim("OAuthType", oauth.ToString());
                         //context.Principal.AddClaim("AppID", appID);

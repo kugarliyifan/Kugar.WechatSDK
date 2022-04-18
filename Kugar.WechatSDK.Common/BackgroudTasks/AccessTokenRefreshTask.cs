@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Kugar.WechatSDK.Common.BackgroudTasks
         }
 
         protected override async Task Run(IServiceProvider serviceProvider, CancellationToken stoppingToken)
-        {
+        { 
             var accessTokenContainer=(IAccessTokenContainer)serviceProvider.GetService(typeof(IAccessTokenContainer));
 
             try
@@ -27,6 +28,7 @@ namespace Kugar.WechatSDK.Common.BackgroudTasks
                 {
                     if (!await accessTokenContainer.CheckAccessToken(item.appID))
                     {
+                        //Debugger.Break();
                         await accessTokenContainer.RefreshAccessToken(item.appID);
                     }
                 }
@@ -41,6 +43,6 @@ namespace Kugar.WechatSDK.Common.BackgroudTasks
             
         }
 
-        protected override int Internal { get; } = 20000;
+        protected override int Internal { get; } = 60000;
     }
 }

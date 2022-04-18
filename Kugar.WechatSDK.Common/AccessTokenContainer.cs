@@ -7,10 +7,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Kugar.Core.ExtMethod;
 using Kugar.Core.Network;
+using Kugar.Core.Services;
+using Kugar.WechatSDK.Common.Gateway;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Kugar.WechatSDK.Common
 {
@@ -25,9 +28,10 @@ namespace Kugar.WechatSDK.Common
         private IMemoryCache _accessTokenCache = null;
         private ILoggerFactory _loggerFactory = null;
         private HttpRequestHelper _request = null;
-        
+        //private IWechatGateway _gateway = null; 
 
-        public AccessTokenContainer(IMemoryCache cache,HttpRequestHelper request,ILoggerFactory loggerFactory=null)
+
+        public AccessTokenContainer(IMemoryCache cache,HttpRequestHelper request,ILoggerFactory loggerFactory)
         {
             _accessTokenCache = cache;
             _loggerFactory = loggerFactory;
@@ -36,9 +40,24 @@ namespace Kugar.WechatSDK.Common
 
         public async Task<string> GetAccessToken(string appId)
         {
-            return await _accessTokenCache.GetOrCreateAsync(appId,async x =>
+            var gateway = GlobalProvider.Provider.GetService<IWechatGateway>();
+
+            var config = gateway.Get(appId);
+
+            if (!config.ManagerAccessToken)
             {
-                //Debugger.Break();
+                if (_otherTokens.TryGetValue(appId, out var f))
+                {
+                    return await f(appId);
+                }
+                else
+                {
+                    throw new Exception("当前AppId未设置管理ticket,并且也未设置JsTicketFactory,无法获取JsTicket");
+                }
+            } 
+
+            return await _accessTokenCache.GetOrCreateAsync(appId,async x =>
+            { 
                 if (_config.TryGetValue(appId,out var tmp))
                 {
                     var data=await _request.SendApiJson(
@@ -58,19 +77,18 @@ namespace Kugar.WechatSDK.Common
                         _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Trace,$"获取accesstoken返回值:{data.ToStringEx(Formatting.None)}");
 
                         x.AbsoluteExpiration=DateTimeOffset.Now.AddSeconds(expire-2);
+                        x.Value = token;
+                        
 
                         return token;
                     }
                     else
                     {
+                        Debugger.Break();
                         _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"调用微信获取token失败,错误代码:{errorCode.ToStringEx()}");
                         throw new Exception($"调用微信获取token失败,错误代码:{errorCode.ToStringEx()}");
                     }
-                }
-                else if (_otherTokens.TryGetValue(appId, out var factory))
-                {
-                    return await factory(appId);
-                }
+                } 
                 else
                 {
                     throw new ArgumentOutOfRangeException(nameof(appId),"为托管对应的AccessToken");
@@ -93,31 +111,42 @@ namespace Kugar.WechatSDK.Common
             });
         }
 
-        public async Task<string> RefreshAccessToken(string appId)
+        public async Task  RefreshAccessToken(string appId)
         {
-            _config.Remove(appId,out _);
-            return await GetAccessToken(appId);
+            _accessTokenCache.Remove(appId );
+            
+            if (this.TokenRefresh != null)
+            {
+                this.TokenRefresh.Invoke(this, new TokenRefreshEventArgs(appId));
+            }
+
         }
 
         public async Task<bool> CheckAccessToken(string appId)
         {
-            if (_accessTokenCache.TryGetValue(appId,out var token))
+            var token = await this.GetAccessToken(appId);
+            
+            if (!string.IsNullOrWhiteSpace(token))
             {
-                var result=await _request.SendApiJson($"/cgi-bin/get_api_domain_ip?access_token={token.ToStringEx()}",HttpMethod.Get);
+                var result = await _request.SendApiJson($"/cgi-bin/get_api_domain_ip?access_token={token.ToStringEx()}", HttpMethod.Get);
 
-                var errorCode = result.GetInt("errcode",0);
+                var errorCode = result.GetInt("errcode", 0);
 
-                if (errorCode==0)
+                if (errorCode == 0)
                 {
                     return true;
                 }
-                else if(errorCode==4001)
+                else if (errorCode == 40001)
                 {
+
+                    _loggerFactory.CreateLogger("accesstoken").Log(LogLevel.Information,"40001检查有效性出错");
+                    //Debugger.Break();
                     return false;
                 }
                 else
                 {
-                    _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error,$"检查{appId}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
+                    Debugger.Break();
+                    _loggerFactory?.CreateLogger("weixin")?.Log(LogLevel.Error, $"检查{appId}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
                     throw new Exception($"检查{appId}的AccessToken发生错误,返回的数据为:{result.ToStringEx(Formatting.None)}");
                 }
             }
@@ -125,7 +154,6 @@ namespace Kugar.WechatSDK.Common
             {
                 return true;
             }
-            
         }
 
         public bool Register(string appId, string appSerect)
@@ -164,7 +192,9 @@ namespace Kugar.WechatSDK.Common
             _config.Remove(appId,out _);
             _accessTokenCache.Remove(appId);
         }
-        
+
+        public event EventHandler<TokenRefreshEventArgs> TokenRefresh;
+
         //internal void RemoveAccessToken(string appId)
         //{
         //    _accessTokenCache.Remove(appId);

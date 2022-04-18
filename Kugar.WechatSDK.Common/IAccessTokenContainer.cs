@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Kugar.WechatSDK.Common
@@ -51,7 +52,7 @@ namespace Kugar.WechatSDK.Common
         /// </summary>
         /// <param name="appID"></param>
         /// <returns></returns>
-        Task<string> RefreshAccessToken(string appID);
+        Task  RefreshAccessToken(string appID);
 
         /// <summary>
         /// 检查指定AppId的AccessToken是否可用
@@ -59,5 +60,18 @@ namespace Kugar.WechatSDK.Common
         /// <param name="appID"></param>
         /// <returns></returns>
         Task<bool> CheckAccessToken(string appID);
+
+        event EventHandler<TokenRefreshEventArgs> TokenRefresh;
+    }
+     
+    public class TokenRefreshEventArgs : EventArgs
+    {
+        public TokenRefreshEventArgs(string appId )
+        {
+            AppId = appId; 
+        }
+
+        public string AppId { get; }
+         
     }
 }

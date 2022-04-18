@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using Kugar.Core.BaseStruct;
+using Kugar.Core.Services;
 using Kugar.WechatSDK.Common.BackgroudTasks;
 using Kugar.WechatSDK.Common.Gateway;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,7 @@ namespace Kugar.WechatSDK.Common
             services.AddSingleton<IAccessTokenContainer, AccessTokenContainer>();
             services.AddSingleton<IWechatGateway,WechatGateway>();
             services.AddSingleton<ICommonApi,CommonApi>();
-
+            services.RegisterGlobalProvider();
             services.AddHostedService<AccessTokenRefreshTask>();
 
             return services;

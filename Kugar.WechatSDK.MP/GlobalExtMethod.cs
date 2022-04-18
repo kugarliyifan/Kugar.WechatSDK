@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Kugar.WechatSDK.Common;
 using Kugar.WechatSDK.Common.Gateway;
 using Kugar.WechatSDK.MP.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Kugar.WechatSDK.MP
@@ -54,6 +57,18 @@ namespace Kugar.WechatSDK.MP
                         accessTokenContainer.Register(item.AppID, item.AppSerect);    
                         jsTicketContainer.Register(item.AppID);
                     }
+                    else
+                    {
+                        if (item.AccessTokenFactory != null)
+                        {
+                            accessTokenContainer.Register(item.AppID, item.AccessTokenFactory);
+                        }
+
+                        if (item.JsTicketFactory!=null)
+                        {
+                            jsTicketContainer.Register(item.AppID, item.JsTicketFactory);
+                        }
+                    }
                 }
                 
                 return new WechatMPApi((IMenuService) x.GetService(typeof(IMenuService)),
@@ -70,9 +85,27 @@ namespace Kugar.WechatSDK.MP
                     (KFManagementService)x.GetService(typeof(KFManagementService))
                 );
             });
-            
+             
+            services.AddHostedService<InitMPApiTask>();
 
             return services;
+        }
+
+        public class InitMPApiTask : BackgroundService
+        {
+            private IServiceProvider _provider = null;
+
+            public InitMPApiTask(IServiceProvider provider)
+            { 
+                _provider = provider;
+            }
+
+            protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+            {
+                var api = _provider.GetService<IWechatMPApi>();
+
+
+            }
         }
     }
 }

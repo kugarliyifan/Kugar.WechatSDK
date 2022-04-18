@@ -15,7 +15,7 @@ namespace Kugar.WechatSDK.Common
     {
         Task<ResultReturn<TResponseData>> Get<TResponseData>(string appID, string url);
 
-        Task<ResultReturn<JObject>> Get(string appID, string url);
+        Task<ResultReturn<JObject>> Get(string appID, string url, bool autoRefreshAccessToken = true);
 
         Task<(string contentType, IReadOnlyList<byte> data)> GetRaw(string appId, string url);
 
@@ -53,15 +53,18 @@ namespace Kugar.WechatSDK.Common
 
             var errorCode = s.GetInt("errcode");
  
-            while (errorCode==40001 || reTryCount>0)
+            while (errorCode== 40001 && reTryCount>0)
             {
-                s =await _request.Get(newUrl);
+                await _accessTokenContainer.RefreshAccessToken(appID);
+                newUrl = await replaceUrlAccessToken(appID, url);
 
+                s =await _request.Get(newUrl);
+                errorCode = s.GetInt("errcode");
                 if (errorCode==0)
                 {
                     break; 
                 }
-                errorCode = s.GetInt("errcode");
+                
                 reTryCount--;
             }
 
@@ -76,7 +79,7 @@ namespace Kugar.WechatSDK.Common
             }
         }
 
-        public async Task<ResultReturn<JObject>> Get(string appID, string url)
+        public async Task<ResultReturn<JObject>> Get(string appID, string url,bool autoRefreshAccessToken=true)
         {
             var newUrl = await replaceUrlAccessToken(appID, url);
             
@@ -86,15 +89,18 @@ namespace Kugar.WechatSDK.Common
 
             var errorCode = s.GetInt("errcode");
  
-            while (errorCode==4001 || reTryCount<=0)
+            while (errorCode== 40001 && reTryCount>0 && autoRefreshAccessToken)
             {
-                s =await _request.Get(newUrl);
+                await _accessTokenContainer.RefreshAccessToken(appID);
+                newUrl = await replaceUrlAccessToken(appID, url);
 
+                s =await _request.Get(newUrl);
+                errorCode = s.GetInt("errcode");
                 if (errorCode==0)
                 {
                     break; 
                 }
-                errorCode = s.GetInt("errcode");
+                
                 reTryCount--;
             }
 
@@ -154,15 +160,19 @@ namespace Kugar.WechatSDK.Common
 
             var errorCode = s.GetInt("errcode");
  
-            while (errorCode==4001 || reTryCount<=0)
+            while (errorCode== 40001 || reTryCount<=0)
             {
-                s =await _request.Post(newUrl,args);
+                await _accessTokenContainer.RefreshAccessToken(appID);
 
+                newUrl = await replaceUrlAccessToken(appID, url);
+
+                s =await _request.Post(newUrl,args);
+                errorCode = s.GetInt("errcode");
                 if (errorCode==0)
                 {
                     break; 
                 }
-                errorCode = s.GetInt("errcode");
+                
                 reTryCount--;
             }
 
@@ -187,15 +197,19 @@ namespace Kugar.WechatSDK.Common
 
             var errorCode = s.GetInt("errcode");
  
-            while (errorCode==4001 || reTryCount<=0)
+            while (errorCode== 40001 && reTryCount>0)
             {
-                s =await _request.Post(newUrl,args);
+                await _accessTokenContainer.RefreshAccessToken(appID);
 
+                newUrl = await replaceUrlAccessToken(appID, url);
+
+                s =await _request.Post(newUrl,args);
+                errorCode = s.GetInt("errcode");
                 if (errorCode==0)
                 {
                     break; 
                 }
-                errorCode = s.GetInt("errcode");
+                
                 reTryCount--;
             }
 
@@ -248,15 +262,19 @@ namespace Kugar.WechatSDK.Common
 
             var errorCode = s.GetInt("errcode");
  
-            while (errorCode==4001 || reTryCount<=0)
+            while (errorCode== 40001 && reTryCount>0)
             {
-                s =await _request.PostByForm(newUrl,form);
+                await _accessTokenContainer.RefreshAccessToken(appID);
 
+                newUrl = await replaceUrlAccessToken(appID, url);
+
+                s =await _request.PostByForm(newUrl,form);
+                errorCode = s.GetInt("errcode");
                 if (errorCode==0)
                 {
                     break; 
                 }
-                errorCode = s.GetInt("errcode");
+                
                 reTryCount--;
             }
 
@@ -286,15 +304,19 @@ namespace Kugar.WechatSDK.Common
 
             var errorCode = s.GetInt("errcode");
  
-            while (errorCode==4001 || reTryCount<=0)
+            while (errorCode== 40001 && reTryCount>0)
             {
-                s =await _request.PostByForm(newUrl,form);
+                await _accessTokenContainer.RefreshAccessToken(appID);
 
+                newUrl = await replaceUrlAccessToken(appID, url);
+
+                s =await _request.PostByForm(newUrl,form);
+                errorCode = s.GetInt("errcode");
                 if (errorCode==0)
                 {
                     break; 
                 }
-                errorCode = s.GetInt("errcode");
+                
                 reTryCount--;
             }
 
@@ -313,16 +335,16 @@ namespace Kugar.WechatSDK.Common
         {
             if (url.Contains("ACCESS_TOKEN"))
             {
-                var accessToken = "";
-
-                if (_accessTokenContainer.Exists(appID))
-                {
-                    accessToken =  await _accessTokenContainer.GetAccessToken(appID);
-                }
-                else
-                {
-                    accessToken = await _accessTokenFactory.GetAccessToken(appID);
-                }
+                var accessToken =await _accessTokenContainer.GetAccessToken(appID);
+                
+                //if (_accessTokenContainer.Exists(appID))
+                //{
+                //    accessToken =  await _accessTokenContainer.GetAccessToken(appID);
+                //}
+                //else
+                //{
+                //    accessToken = await _accessTokenFactory.GetAccessToken(appID);
+                //}
 
                 var newUrl = url.Replace("ACCESS_TOKEN",accessToken);
 
