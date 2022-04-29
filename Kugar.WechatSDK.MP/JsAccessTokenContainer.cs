@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
+using EasyCaching.Core;
 using Kugar.Core.BaseStruct;
 using Kugar.Core.ExtMethod;
 using Kugar.Core.Log;
@@ -48,8 +49,9 @@ namespace Kugar.WechatSDK.MP
     public class JsTicketContainer : IJsTicketContainer
     {
         private HashSet<string> _config =new HashSet<string>();
-
+        
         private IMemoryCache _accessTokenCache = null;
+        private IEasyCachingProviderBase _cache = null;
         private ILoggerFactory _loggerFactory = null;
         private ICommonApi _api = null;
         private IWechatGateway _gateway = null;
@@ -58,9 +60,10 @@ namespace Kugar.WechatSDK.MP
         private ConcurrentDictionary<string, AccessTokenFactory> _otherTokens =
             new ConcurrentDictionary<string, AccessTokenFactory>();
 
-        public JsTicketContainer(IMemoryCache cache,ICommonApi api,ILoggerFactory loggerFactory, IWechatGateway gateway,IHttpContextAccessor accessor,IAccessTokenContainer container)
+        public JsTicketContainer(IEasyCachingProviderBase cache,IMemoryCache memCache,ICommonApi api,ILoggerFactory loggerFactory, IWechatGateway gateway,IHttpContextAccessor accessor,IAccessTokenContainer container)
         {
-            _accessTokenCache = cache;
+            _cache = cache;
+            _accessTokenCache = memCache;
             _loggerFactory = loggerFactory;
             _api = api;
             _gateway = gateway;
@@ -96,7 +99,13 @@ namespace Kugar.WechatSDK.MP
                 {
                     throw new Exception("当前AppId未设置管理ticket,并且也未设置JsTicketFactory,无法获取JsTicket");
                 }
-            } 
+            }
+
+            //_cache.GetAsync<string>($"JT-{appID}", async x =>
+            //{
+            //    return "";
+            //}, TimeSpan.FromSeconds(7000));
+
             //Debugger.Break();
             return await _accessTokenCache.GetOrCreateAsync($"JT-{appID}",async x =>
             {
