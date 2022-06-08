@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Kugar.Core.BaseStruct;
@@ -279,7 +280,7 @@ namespace Kugar.WechatSDK.MP
                 ["pagepath"] = miniProgramPath
             });
 
-            var ret =await CommonApi.Post(appId, "/cgi-bin/message/template/subscribe?access_token=ACCESS_TOKEN", args);
+            var ret =await CommonApi.Post(appId, "/cgi-bin/message/template/send?access_token=ACCESS_TOKEN", args);
 
             return ret;
         }
@@ -305,6 +306,7 @@ namespace Kugar.WechatSDK.MP
             string miniProgramPath=""
         )
         {
+            Debugger.Break();
             var args = new JObject()
             {
                 ["touser"] = toUserOpenId,
@@ -330,7 +332,7 @@ namespace Kugar.WechatSDK.MP
                 ["pagepath"] = miniProgramPath
             });
 
-            var ret =await CommonApi.Post(appId, "/cgi-bin/message/template/subscribe?access_token=ACCESS_TOKEN", args);
+            var ret =await CommonApi.Post(appId, "/cgi-bin/message/template/send?access_token=ACCESS_TOKEN", args);
 
             return ret;
         }

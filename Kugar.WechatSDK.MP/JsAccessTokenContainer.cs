@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
-using EasyCaching.Core;
+//using EasyCaching.Core;
 using Kugar.Core.BaseStruct;
 using Kugar.Core.ExtMethod;
 using Kugar.Core.Log;
@@ -51,7 +51,7 @@ namespace Kugar.WechatSDK.MP
         private HashSet<string> _config =new HashSet<string>();
         
         private IMemoryCache _accessTokenCache = null;
-        private IEasyCachingProviderBase _cache = null;
+        //private IEasyCachingProviderBase _cache = null;
         private ILoggerFactory _loggerFactory = null;
         private ICommonApi _api = null;
         private IWechatGateway _gateway = null;
@@ -60,9 +60,9 @@ namespace Kugar.WechatSDK.MP
         private ConcurrentDictionary<string, AccessTokenFactory> _otherTokens =
             new ConcurrentDictionary<string, AccessTokenFactory>();
 
-        public JsTicketContainer(IEasyCachingProviderBase cache,IMemoryCache memCache,ICommonApi api,ILoggerFactory loggerFactory, IWechatGateway gateway,IHttpContextAccessor accessor,IAccessTokenContainer container)
+        public JsTicketContainer(/*IEasyCachingProviderBase cache,*/IMemoryCache memCache,ICommonApi api,ILoggerFactory loggerFactory, IWechatGateway gateway,IHttpContextAccessor accessor,IAccessTokenContainer container)
         {
-            _cache = cache;
+            //_cache = cache;
             _accessTokenCache = memCache;
             _loggerFactory = loggerFactory;
             _api = api;

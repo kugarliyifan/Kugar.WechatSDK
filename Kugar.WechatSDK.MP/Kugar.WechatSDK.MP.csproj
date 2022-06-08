@@ -4,11 +4,10 @@
 		<TargetFrameworks>netcoreapp3.1;net5.0;</TargetFrameworks>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>1.0.0.42</Version>
+		<Version>1.0.0.45</Version>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<Description>1.增加JsTicketFactory参数和AccessTokenFactory参数,用于在无管理token的情况下,触发回调获取其他途径的Token
-		2.增加强制刷新JsTicketContainer内数据</Description>
+		<Description>1.修复模板消息发送错误</Description>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
